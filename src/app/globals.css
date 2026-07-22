@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .glass {
+    background: rgba(22, 22, 26, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    border-radius: 1.25rem;
+  }
+
+  .gel {
+    animation: gel 1.2s ease-in-out;
+    transform-origin: center;
+    will-change: transform;
+  }
+}
+
+@keyframes gel {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  20% {
+    transform: scale(0.94, 1.06);
+  }
+  40% {
+    transform: scale(1.06, 0.94);
+  }
+  60% {
+    transform: scale(0.97, 1.03);
+  }
+  80% {
+    transform: scale(1.02, 0.98);
+  }
+}
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+}

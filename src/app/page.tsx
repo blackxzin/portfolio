@@ -373,10 +373,15 @@ function ContactPanel() {
           <FadeIn
             key={contact.label}
             index={idx}
-            href={contact.href}
-            target={contact.href.startsWith("http") ? "_blank" : undefined}
-            rel={contact.href.startsWith("http") ? "noopener noreferrer" : undefined}
-            className="group flex items-center gap-4 rounded-2xl border border-white/5 bg-[#16161a] p-5 transition hover:bg-[#1c1c21] hover:border-white/10 glass gel-mild"
+            role="link"
+            tabIndex={0}
+            onClick={() => window.open(contact.href, contact.href.startsWith("http") ? "_blank" : "_self")}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                window.open(contact.href, contact.href.startsWith("http") ? "_blank" : "_self");
+              }
+            }}
+            className="group flex cursor-pointer items-center gap-4 rounded-2xl border border-white/5 bg-[#16161a] p-5 transition hover:bg-[#1c1c21] hover:border-white/10 glass gel-mild"
           >
             <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-white/5 bg-[#0a0a0b] text-lg">
               {contact.icon}
@@ -396,19 +401,32 @@ function FadeIn({
   children,
   index = 0,
   className = "",
-  ...props
+  onClick,
+  onKeyDown,
+  role,
+  tabIndex,
+  style,
 }: {
   children: React.ReactNode;
   index?: number;
   className?: string;
-} & React.HTMLAttributes<HTMLDivElement>) {
+  onClick?: () => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+  role?: string;
+  tabIndex?: number;
+  style?: React.CSSProperties;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.07, duration: 0.55, ease: [0.25, 0.1, 0.25, 1] }}
       className={className}
-      {...props}
+      onClick={onClick}
+      onKeyDown={onKeyDown}
+      role={role}
+      tabIndex={tabIndex}
+      style={style}
     >
       {children}
     </motion.div>

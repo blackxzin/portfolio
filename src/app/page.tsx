@@ -61,6 +61,7 @@ export default function PortfolioPage() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
   useEffect(() => setMounted(true), []);
 
@@ -78,6 +79,12 @@ export default function PortfolioPage() {
     else if (info.offset.x > threshold) prev();
   };
 
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const nx = (e.clientX / window.innerWidth) * 2 - 1;
+    const ny = (e.clientY / window.innerHeight) * 2 - 1;
+    setMouse({ x: nx, y: ny });
+  };
+
   if (!mounted) return <div className="w-screen h-screen bg-[#0a0a0b]" />;
 
   const current = sectionConfigs[active];
@@ -86,18 +93,19 @@ export default function PortfolioPage() {
     <div
       ref={containerRef}
       className="relative w-screen h-screen overflow-hidden bg-[#0a0a0b] text-[#f1f1f3] font-sans select-none gel"
+      onMouseMove={handleMouseMove}
     >
-      <div className="absolute inset-0 pointer-events-none">
+      <motion.div className="absolute inset-0 pointer-events-none" style={{ perspective: 1200 }}>
         <div className="absolute -top-40 left-1/2 h-[720px] w-[720px] -translate-x-1/2 rounded-full bg-[#7c3aed]/[0.08] blur-[140px]" />
         <div className="absolute top-[20%] -left-48 h-[420px] w-[420px] rounded-full bg-[#34d399]/[0.05] blur-[110px]" />
 
-        <FloatingIcon src="/icon-browser.png" x={86} y={14} rotation={-12} size={110} />
-        <FloatingIcon src="/icon-gear.png" x={8} y={72} rotation={18} size={95} />
-        <FloatingIcon src="/icon-db.png" x={78} y={32} rotation={-10} size={100} />
-        <FloatingIcon src="/icon-terminal.png" x={16} y={26} rotation={14} size={90} />
-        <FloatingIcon src="/icon-key.png" x={84} y={78} rotation={-16} size={85} />
-        <FloatingIcon src="/icon-component.png" x={18} y={78} rotation={8} size={90} />
-      </div>
+        <FloatingIcon src="/icon-browser.png" active={active} dir={direction} index={0} mouse={mouse} />
+        <FloatingIcon src="/icon-gear.png" active={active} dir={direction} index={1} mouse={mouse} />
+        <FloatingIcon src="/icon-db.png" active={active} dir={direction} index={2} mouse={mouse} />
+        <FloatingIcon src="/icon-terminal.png" active={active} dir={direction} index={3} mouse={mouse} />
+        <FloatingIcon src="/icon-key.png" active={active} dir={direction} index={4} mouse={mouse} />
+        <FloatingIcon src="/icon-component.png" active={active} dir={direction} index={5} mouse={mouse} />
+      </motion.div>
 
       <AnimatePresence custom={direction} mode="popLayout">
         <motion.section
@@ -704,16 +712,59 @@ function Skeleton() {
   return <div className="h-40 animate-pulse rounded-2xl border border-white/5 bg-[#16161a]" />;
 }
 
-function FloatingIcon({ src, x, y, rotation, size = 90, delay = 0 }: { src: string; x: number; y: number; rotation: number; size?: number; delay?: number }) {
+// Posições de órbita por seção: cada ícone envolve o painel conforme a seção ativa
+const orbitLayouts: { x: number; y: number }[][] = [
+  // Sobre (0)
+  [{ x: 84, y: 16 }, { x: 7, y: 60 }, { x: 74, y: 40 }, { x: 14, y: 20 }, { x: 82, y: 76 }, { x: 16, y: 74 }],
+  // Habilidades (1)
+  [{ x: 88, y: 20 }, { x: 6, y: 70 }, { x: 72, y: 28 }, { x: 10, y: 18 }, { x: 86, y: 82 }, { x: 20, y: 68 }],
+  // Competências (2)
+  [{ x: 84, y: 18 }, { x: 8, y: 58 }, { x: 70, y: 44 }, { x: 18, y: 22 }, { x: 88, y: 72 }, { x: 12, y: 70 }],
+  // Metas (3)
+  [{ x: 86, y: 12 }, { x: 9, y: 64 }, { x: 76, y: 50 }, { x: 14, y: 16 }, { x: 80, y: 84 }, { x: 18, y: 78 }],
+  // Projetos (4)
+  [{ x: 92, y: 12 }, { x: 5, y: 62 }, { x: 80, y: 30 }, { x: 12, y: 12 }, { x: 90, y: 78 }, { x: 8, y: 82 }],
+  // Contato (5)
+  [{ x: 84, y: 14 }, { x: 8, y: 56 }, { x: 72, y: 46 }, { x: 16, y: 18 }, { x: 86, y: 74 }, { x: 14, y: 76 }],
+];
+
+function FloatingIcon({ src, active, dir, rotation = [-12, 14, -10, 8, -16, 12][0], size = 90, delay = 0, index = 0, mouse }: {
+  src: string; active: number; dir: number;
+  rotation?: number; size?: number; delay?: number; index?: number; mouse?: { x: number; y: number };
+}) {
+  const rot = rotation ?? [-12, 14, -10, 8, -16, 12][index % 6];
+  const depth = 18 + (index % 3) * 20;
+  const mx = mouse?.x ?? 0;
+  const my = mouse?.y ?? 0;
+  const target = orbitLayouts[active % orbitLayouts.length][index % 6];
+  // reação à navegação: os ícones "atraem" pra uma órbita ligeiramente deslocada na direção do slide
+  const orbit = {
+    x: target.x - dir * (12 + (index % 3) * 4),
+    y: target.y,
+  };
   return (
     <motion.img
       src={src}
       alt=""
-      className="pointer-events-none absolute opacity-[0.12]"
-      style={{ left: `${x}%`, top: `${y}%`, width: size }}
-      initial={{ rotate: rotation }}
-      animate={{ y: [0, -8, 0], rotate: [rotation, rotation + 3, rotation - 2, rotation] }}
-      transition={{ duration: 6, ease: "easeInOut", repeat: Infinity, delay }}
+      className="pointer-events-none absolute"
+      style={{
+        width: size,
+        x: mx * depth + my * depth * 0.3,
+        opacity: 0.5 + index * 0.06, // ícones aparentes
+        filter: `blur(${index % 2 === 0 ? 0 : 1}px) drop-shadow(0 ${10 + index * 6}px ${6 + index * 4}px rgba(0,0,0,0.5))`,
+      }}
+      animate={{
+        left: `${orbit.x}%`,
+        top: `${orbit.y}%`,
+        rotate: [rot, rot + 5, rot - 4, rot],
+        scale: [1, 1.06, 0.97, 1],
+      }}
+      transition={{
+        left: { type: "spring", duration: 1.1, bounce: 0.2 },
+        top: { type: "spring", duration: 1.1, bounce: 0.2 },
+        rotate: { duration: 8 + index, ease: "easeInOut", repeat: Infinity, delay },
+        scale: { duration: 8 + index, ease: "easeInOut", repeat: Infinity, delay },
+      }}
     />
   );
 }

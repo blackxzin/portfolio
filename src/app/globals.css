@@ -17,6 +17,29 @@
   }
 }
 
+.project-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 58, 237, 0.45) rgba(255, 255, 255, 0.05);
+}
+
+.project-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.project-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+}
+
+.project-scroll::-webkit-scrollbar-thumb {
+  background: rgba(124, 58, 237, 0.45);
+  border-radius: 999px;
+}
+
+.project-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 58, 237, 0.7);
+}
+
 @keyframes gel {
   0%,
   100% {

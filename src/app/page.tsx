@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
-import Scene3D, { setSceneMouse } from "@/components/Scene3D";
 
 const PANEL_WIDTH = 636;
 
@@ -80,24 +79,18 @@ export default function PortfolioPage() {
     else if (info.offset.x > threshold) prev();
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    setSceneMouse((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1);
-  };
-  
   if (!mounted) return <div className="w-screen h-screen bg-[#0a0a0b]" />;
 
   const current = sectionConfigs[active];
 
-  // tela de apresentação: castelo + nome + CTA "entrar" — vira a página 1 do portfolio
+  // tela de apresentação: nome + CTA "entrar" — vira a página 1 do portfolio
   if (!introDone) {
     return (
       <div
         className="relative w-screen h-screen overflow-hidden bg-[#0a0a0b] text-[#f1f1f3] font-sans select-none"
-        onMouseMove={handleMouseMove}
       >
-        <div className="absolute inset-0" style={{ maskImage: "radial-gradient(ellipse 120% 110% at 50% 40%, black 35%, transparent 75%)", WebkitMaskImage: "radial-gradient(ellipse 120% 110% at 50% 40%, black 35%, transparent 75%)" }}>
-          {/* pointer-events automático: clicar/arrastar gira a câmera do 3D */}
-          <Scene3D intro />
+        <div className="absolute inset-0">
+          <IntroPoster />
         </div>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-5 px-6 text-center">
           <motion.img
@@ -137,7 +130,7 @@ export default function PortfolioPage() {
           </motion.button>
         </div>
         <p className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[11px] text-[#5b5c68]">
-          Castelo de Lastours · modelo 3D
+          Portfólio · Lucas Gabriel
         </p>
       </div>
     );
@@ -147,16 +140,8 @@ export default function PortfolioPage() {
     <div
       ref={containerRef}
       className="relative w-screen h-screen overflow-hidden bg-[#0a0a0b] text-[#f1f1f3] font-sans select-none gel"
-      onMouseMove={handleMouseMove}
     >
-      {/* fundo 3D — modelo local otimizado por seção / guardião na Sobre */}
-      <div
-        className="absolute inset-0"
-        style={{ maskImage: "radial-gradient(ellipse 120% 110% at 50% 40%, black 30%, transparent 72%)", WebkitMaskImage: "radial-gradient(ellipse 120% 110% at 50% 40%, black 30%, transparent 72%)" }}
-      >
-        <Gallery3DBackdrop active={active} />
-      </div>
-      {/* véu preto translúcido para legibilidade do conteúdo (não bloqueia drag no 3D) */}
+      {/* fundo: véu translúcido global para legibilidade */}
       <div className="pointer-events-none absolute inset-0 bg-black/60" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#0a0a0b] to-transparent" />
 
@@ -369,64 +354,13 @@ function Typewriter({ words, typingMs = 70, pauseMs = 1600 }: { words: string[];
   );
 }
 
-// fundo 3D por seção: modelo local carregado sob demanda (preload do vizinho)
-const SECTION_MODELS: Record<string, { path: string; accent: string; label: string }> = {
-  about: { path: "/models/chateau_de_lastours.glb", accent: "#a78bfa", label: "Castelo de Lastours" },
-  skills: { path: "/models/loft_5_interior_for_free.glb", accent: "#a78bfa", label: "Loft" },
-  competencies: { path: "/models/loft_japanese_11_free_interior.glb", accent: "#22d3ee", label: "Loft japonês" },
-  journey: { path: "/models/chateau_de_lastours.glb", accent: "#34d399", label: "Castelo de Lastours" },
-  projects: { path: "/models/street_city_7_for_games_free.glb", accent: "#34d399", label: "Cidade" },
-  contact: { path: "/models/chateau_de_lastours.glb", accent: "#a78bfa", label: "Castelo de Lastours" },
-};
-
-// "Adote um Computador - Guardião da Tecnologia" (museudocomputador) — fundo da
-// seção Sobre que abre ao entrar. Iframe sketchfab montado 1x e mantido vivo:
-// alterna só por opacity, nunca remonta nem trava a navegação.
-const GUARDIAN_URL =
-  "https://sketchfab.com/models/abe47f8cd4d54f07bd664100bc97e6e6/embed?autostart=1&muted=1&preload=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_annotations=0&ui_stop=0";
-const GUARDIAN_POSTER =
-  "https://media.sketchfab.com/models/abe47f8cd4d54f07bd664100bc97e6e6/thumbnails/0b9fdf2ee8aa40cfb664beef3b19e30d/db4ae7763fd448c3bc83e19eed496f0e.jpeg";
-
-function GuardianBackdrop({ active }: { active: boolean }) {
+// fundo da intro: brilho suave no lugar do 3D
+function IntroPoster() {
   return (
     <div
-      className={`absolute inset-0 transition-opacity duration-700 ${active ? "opacity-100" : "opacity-0"}`}
-      style={{ background: "radial-gradient(circle at 50% 45%, #34d39922, transparent 70%)" }}
-    >
-      {/* poster pinta na hora; o 3D faz fade por cima quando carrega */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={GUARDIAN_POSTER}
-        alt=""
-        aria-hidden
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25"
-      />
-      <iframe
-        src={GUARDIAN_URL}
-        className={`pointer-events-none absolute inset-0 h-full w-full transition-opacity duration-700 ${active ? "opacity-60" : "opacity-0"}`}
-        allow="autoplay; fullscreen; xr-spatial-tracking"
-        allowFullScreen
-        title="Adote um Computador - Guardião da Tecnologia"
-      />
-    </div>
-  );
-}
-
-function Gallery3DBackdrop({ active }: { active: number }) {
-  const current = sectionConfigs[active];
-  const model = SECTION_MODELS[current.id];
-  const isAbout = current.id === "about";
-
-  return (
-    <>
-      {/* Guardião: sempre montado, alterna por opacity — entra sem carregar nada */}
-      <GuardianBackdrop active={isAbout} />
-      {!isAbout && (
-        <div key={current.id} className="absolute inset-0">
-          <Scene3D path={model.path} accent={model.accent} label={model.label} />
-        </div>
-      )}
-    </>
+      className="h-full w-full"
+      style={{ background: "radial-gradient(ellipse 90% 70% at 50% 42%, #7c3aed20, transparent 70%)" }}
+    />
   );
 }
 

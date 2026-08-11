@@ -356,7 +356,7 @@ function Typewriter({ words, typingMs = 70, pauseMs = 1600 }: { words: string[];
 
 // fundo da intro: modelo Tentacle (sketchfab, museudocomputador) girando atrás do nome
 const INTRO_EMBED =
-  "https://sketchfab.com/models/3f288cc3ace24294b628fdd0381ffab3/embed?autospin=1&preload=1&transparent=1&ui_infos=0&ui_stop=0&ui_inspector=0&ui_hint=0&ui_help=0&ui_settings=0&ui_vr=0&ui_annotations=0&ui_theme=dark&dnt=1";
+  "https://sketchfab.com/models/3f288cc3ace24294b628fdd0381ffab3/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_infos=0&ui_stop=0&ui_inspector=0&ui_hint=0&ui_help=0&ui_settings=0&ui_vr=0&ui_annotations=0&ui_theme=dark&dnt=1";
 
 function IntroPoster() {
   return (

@@ -378,14 +378,54 @@ const SECTION_MODELS: Record<string, { path: string; accent: string; label: stri
   contact: { path: "/models/chateau_de_lastours.glb", accent: "#a78bfa", label: "Castelo de Lastours" },
 };
 
+// "Adote um Computador - Guardião da Tecnologia" (museudocomputador) — fundo da
+// seção Sobre que abre ao entrar. Iframe sketchfab montado 1x e mantido vivo:
+// alterna só por opacity, nunca remonta nem trava a navegação.
+const GUARDIAN_URL =
+  "https://sketchfab.com/models/abe47f8cd4d54f07bd664100bc97e6e6/embed?autostart=1&muted=1&preload=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_annotations=0&ui_stop=0";
+const GUARDIAN_POSTER =
+  "https://media.sketchfab.com/models/abe47f8cd4d54f07bd664100bc97e6e6/thumbnails/0b9fdf2ee8aa40cfb664beef3b19e30d/db4ae7763fd448c3bc83e19eed496f0e.jpeg";
+
+function GuardianBackdrop({ active }: { active: boolean }) {
+  return (
+    <div
+      className={`absolute inset-0 transition-opacity duration-700 ${active ? "opacity-100" : "opacity-0"}`}
+      style={{ background: "radial-gradient(circle at 50% 45%, #34d39922, transparent 70%)" }}
+    >
+      {/* poster pinta na hora; o 3D faz fade por cima quando carrega */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={GUARDIAN_POSTER}
+        alt=""
+        aria-hidden
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25"
+      />
+      <iframe
+        src={GUARDIAN_URL}
+        className={`pointer-events-none absolute inset-0 h-full w-full transition-opacity duration-700 ${active ? "opacity-60" : "opacity-0"}`}
+        allow="autoplay; fullscreen; xr-spatial-tracking"
+        allowFullScreen
+        title="Adote um Computador - Guardião da Tecnologia"
+      />
+    </div>
+  );
+}
+
 function Gallery3DBackdrop({ active }: { active: number }) {
   const current = sectionConfigs[active];
   const model = SECTION_MODELS[current.id];
+  const isAbout = current.id === "about";
 
   return (
-    <div key={current.id} className="h-full w-full">
-      <Scene3D path={model.path} accent={model.accent} label={model.label} />
-    </div>
+    <>
+      {/* Guardião: sempre montado, alterna por opacity — entra sem carregar nada */}
+      <GuardianBackdrop active={isAbout} />
+      {!isAbout && (
+        <div key={current.id} className="absolute inset-0">
+          <Scene3D path={model.path} accent={model.accent} label={model.label} />
+        </div>
+      )}
+    </>
   );
 }
 

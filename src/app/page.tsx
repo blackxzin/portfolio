@@ -141,12 +141,13 @@ export default function PortfolioPage() {
       ref={containerRef}
       className="relative w-screen h-screen overflow-hidden bg-[#0a0a0b] text-[#f1f1f3] font-sans select-none gel"
     >
-      {/* fundo: véu translúcido global + embeds sketchfab por seção */}
-      <div className="pointer-events-none absolute inset-0 bg-black/60" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#0a0a0b] to-transparent" />
+      {/* fundo: embeds sketchfab por seção ATRÁS do véu/gradiente — a barra de
+          controles do sketchfab (play/config/vr) fica coberta pelo gradiente */}
       <div className="pointer-events-none absolute inset-0">
         <SectionBackdrop active={active} />
       </div>
+      <div className="pointer-events-none absolute inset-0 bg-black/60" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#0a0a0b] to-transparent" />
 
       <AnimatePresence custom={direction} mode="popLayout">
         <motion.section
@@ -359,9 +360,9 @@ function Typewriter({ words, typingMs = 70, pauseMs = 1600 }: { words: string[];
 
 // embeds sketchfab por seção (pointer-events-none — não bloqueiam o conteúdo)
 const SECTION_EMBEDS: Record<string, string> = {
-  // ui_* zerados + dnt=1: sem ajuda, inspetor, VR, tela cheia, anotações,
+  // ui_* zerados + dnt=1: sem VR, ajuda, inspetor, tela cheia, anotações,
   // barra de animação, botão parar/fullscreen — só o 3D girando
-  skills: "https://sketchfab.com/models/aac6cfe455a846cdbe8c88f04ec89820/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_annotations=0&ui_stop=0&ui_fadeout=1&ui_theme=dark&dnt=1",
+  skills: "https://sketchfab.com/models/aac6cfe455a846cdbe8c88f04ec89820/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_vr=0&ui_annotations=0&ui_stop=0&ui_fadeout=1&ui_theme=dark&dnt=1",
 };
 
 // fundo da intro: modelo Tentacle (sketchfab, museudocomputador) girando atrás do nome

@@ -358,10 +358,20 @@ function Typewriter({ words, typingMs = 70, pauseMs = 1600 }: { words: string[];
 }
 
 // embeds sketchfab por seção (pointer-events-none — não bloqueiam o conteúdo)
-const SECTION_EMBEDS: Record<string, string> = {
+const SECTION_EMBEDS: Record<string, { url: string; topPct: number; heightPct: number }> = {
   // ui_* zerados + dnt=1: sem VR, ajuda, inspetor, tela cheia, anotações,
   // barra de animação, botão parar/fullscreen — só o 3D girando
-  skills: "https://sketchfab.com/models/aac6cfe455a846cdbe8c88f04ec89820/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_vr=0&ui_annotations=0&ui_stop=0&ui_fadeout=1&ui_theme=dark&dnt=1",
+  // heightPct/topPct: iframe maior que a tela corta a barra do sketchfab por baixo
+  about: {
+    url: "https://sketchfab.com/models/eb88f06b4bc342d6bfa99e7608f1d7be/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_vr=0&ui_annotations=0&ui_stop=0&ui_fadeout=1&ui_theme=dark&dnt=1",
+    topPct: -14,
+    heightPct: 128,
+  },
+  skills: {
+    url: "https://sketchfab.com/models/aac6cfe455a846cdbe8c88f04ec89820/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_vr=0&ui_annotations=0&ui_stop=0&ui_fadeout=1&ui_theme=dark&dnt=1",
+    topPct: 8,
+    heightPct: 100,
+  },
 };
 
 // fundo da intro: modelo Tentacle (sketchfab, museudocomputador) girando atrás do nome
@@ -385,17 +395,17 @@ function IntroPoster() {
 // fundo por seção: embed montado apenas na seção ativa (troca via state)
 function SectionBackdrop({ active }: { active: number }) {
   const id = sectionConfigs[active].id;
-  const url = SECTION_EMBEDS[id];
-  if (!url) return null;
+  const conf = SECTION_EMBEDS[id];
+  if (!conf) return null;
   return (
     <div className="absolute inset-0 overflow-hidden">
-      {/* embaixado um pouco: a cena sobe e a barra do sketchfab sai da tela
-          (transparent=1 deixa o fundo da página aparecer no vão) */}
+      {/* tamanho > 100% corta a barra de controles do sketchfab pra fora da tela;
+          transparent=1 deixa o fundo da página aparecer nas bordas */}
       <iframe
         key={id}
-        src={url}
-        className="pointer-events-none absolute inset-0 h-full w-full opacity-60"
-        style={{ transform: "translateY(8vh)" }}
+        src={conf.url}
+        className="pointer-events-none absolute left-0 w-full opacity-60"
+        style={{ top: `${conf.topPct}%`, height: `${conf.heightPct}%` }}
         allow="autoplay; fullscreen; xr-spatial-tracking"
         allowFullScreen
         title={`Fundo ${id}`}

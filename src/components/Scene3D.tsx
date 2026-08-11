@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useGLTF } from "@react-three/drei";
+import { OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
 // decoder DRACO local (modelos otimizados) — uma vez por sessão
@@ -210,7 +210,7 @@ export default function Scene3D({
       {/* poster atrás: pinta imediatamente; o canvas faz fade por cima */}
       <ScenePoster accent={accent} label={label} />
       <Canvas
-        className="absolute inset-0"
+        className={`${intro ? "absolute inset-0" : "pointer-events-bounds-restricted absolute inset-0"} cursor-grab active:cursor-grabbing`}
         camera={{ position: [8.5, 3.4, 8.5], fov: 38 }}
         dpr={[1, 1.8]}
         gl={{ antialias: true, alpha: true }}
@@ -231,6 +231,18 @@ export default function Scene3D({
         <Suspense fallback={null}>
           <Model path={path} radius={radius} />
         </Suspense>
+
+        {/* arrastar gira a câmera; solta o mouse e ele volta a rodar sozinho */}
+        <OrbitControls
+          enablePan={false}
+          enableZoom={false}
+          rotateSpeed={0.85}
+          minPolarAngle={Math.PI * 0.2}
+          maxPolarAngle={Math.PI * 0.72}
+          autoRotate
+          autoRotateSpeed={intro ? 1.2 : 1.6}
+          makeDefault
+        />
       </Canvas>
     </div>
   );

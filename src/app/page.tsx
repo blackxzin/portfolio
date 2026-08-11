@@ -96,9 +96,10 @@ export default function PortfolioPage() {
         onMouseMove={handleMouseMove}
       >
         <div className="absolute inset-0" style={{ maskImage: "radial-gradient(ellipse 120% 110% at 50% 40%, black 35%, transparent 75%)", WebkitMaskImage: "radial-gradient(ellipse 120% 110% at 50% 40%, black 35%, transparent 75%)" }}>
+          {/* pointer-events automático: clicar/arrastar gira a câmera do 3D */}
           <Scene3D intro />
         </div>
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 px-6 text-center">
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-5 px-6 text-center">
           <motion.img
             src="/avatar.png"
             alt="Avatar"
@@ -130,7 +131,7 @@ export default function PortfolioPage() {
             onClick={() => setIntroDone(true)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.96 }}
-            className="mt-2 rounded-full bg-[#7c3aed] px-8 py-3 text-sm font-bold text-white shadow-[0_0_40px_rgba(124,58,237,0.5)] transition hover:bg-[#6d28d9]"
+            className="pointer-events-auto mt-2 rounded-full bg-[#7c3aed] px-8 py-3 text-sm font-bold text-white shadow-[0_0_40px_rgba(124,58,237,0.5)] transition hover:bg-[#6d28d9]"
           >
             Entrar no portfólio →
           </motion.button>
@@ -148,7 +149,7 @@ export default function PortfolioPage() {
       className="relative w-screen h-screen overflow-hidden bg-[#0a0a0b] text-[#f1f1f3] font-sans select-none gel"
       onMouseMove={handleMouseMove}
     >
-      {/* fundo 3D — modelo local otimizado por seção (sem iframes externos) */}
+      {/* fundo 3D — modelo local otimizado por seção / guardião na Sobre */}
       <div
         className="absolute inset-0"
         style={{ maskImage: "radial-gradient(ellipse 120% 110% at 50% 40%, black 30%, transparent 72%)", WebkitMaskImage: "radial-gradient(ellipse 120% 110% at 50% 40%, black 30%, transparent 72%)" }}

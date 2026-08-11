@@ -141,13 +141,12 @@ export default function PortfolioPage() {
       ref={containerRef}
       className="relative w-screen h-screen overflow-hidden bg-[#0a0a0b] text-[#f1f1f3] font-sans select-none gel"
     >
-      {/* fundo: embeds sketchfab por seção ATRÁS do véu/gradiente — a barra de
-          controles do sketchfab (play/config/vr) fica coberta pelo gradiente */}
+      {/* fundo: véu translúcido global + embeds sketchfab por seção (visíveis) */}
+      <div className="pointer-events-none absolute inset-0 bg-black/60" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#0a0a0b] to-transparent" />
       <div className="pointer-events-none absolute inset-0">
         <SectionBackdrop active={active} />
       </div>
-      <div className="pointer-events-none absolute inset-0 bg-black/60" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#0a0a0b] to-transparent" />
 
       <AnimatePresence custom={direction} mode="popLayout">
         <motion.section
@@ -389,14 +388,19 @@ function SectionBackdrop({ active }: { active: number }) {
   const url = SECTION_EMBEDS[id];
   if (!url) return null;
   return (
-    <iframe
-      key={id}
-      src={url}
-      className="absolute inset-0 h-full w-full opacity-50"
-      allow="autoplay; fullscreen; xr-spatial-tracking"
-      allowFullScreen
-      title={`Fundo ${id}`}
-    />
+    <div className="absolute inset-0 overflow-hidden">
+      {/* embaixado um pouco: a cena sobe e a barra do sketchfab sai da tela
+          (transparent=1 deixa o fundo da página aparecer no vão) */}
+      <iframe
+        key={id}
+        src={url}
+        className="pointer-events-none absolute inset-0 h-full w-full opacity-60"
+        style={{ transform: "translateY(8vh)" }}
+        allow="autoplay; fullscreen; xr-spatial-tracking"
+        allowFullScreen
+        title={`Fundo ${id}`}
+      />
+    </div>
   );
 }
 

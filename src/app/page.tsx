@@ -358,7 +358,7 @@ function Typewriter({ words, typingMs = 70, pauseMs = 1600 }: { words: string[];
 }
 
 // embeds sketchfab por seção (pointer-events-none — não bloqueiam o conteúdo)
-const SECTION_EMBEDS: Record<string, { url: string; topPct: number; heightPct: number }> = {
+const SECTION_EMBEDS: Record<string, { url: string; topPct: number; heightPct: number; dim?: number }> = {
   // ui_* zerados + dnt=1: sem VR, ajuda, inspetor, tela cheia, anotações,
   // barra de animação, botão parar/fullscreen — só o 3D girando
   // heightPct/topPct: iframe maior que a tela corta a barra do sketchfab por baixo

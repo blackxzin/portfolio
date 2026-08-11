@@ -359,7 +359,9 @@ function Typewriter({ words, typingMs = 70, pauseMs = 1600 }: { words: string[];
 
 // embeds sketchfab por seção (pointer-events-none — não bloqueiam o conteúdo)
 const SECTION_EMBEDS: Record<string, string> = {
-  skills: "https://sketchfab.com/models/aac6cfe455a846cdbe8c88f04ec89820/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_hint=0&ui_theme=dark&dnt=1",
+  // ui_* zerados + dnt=1: sem ajuda, inspetor, VR, tela cheia, anotações,
+  // barra de animação, botão parar/fullscreen — só o 3D girando
+  skills: "https://sketchfab.com/models/aac6cfe455a846cdbe8c88f04ec89820/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_annotations=0&ui_stop=0&ui_fadeout=1&ui_theme=dark&dnt=1",
 };
 
 // fundo da intro: modelo Tentacle (sketchfab, museudocomputador) girando atrás do nome

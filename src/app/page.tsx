@@ -141,9 +141,12 @@ export default function PortfolioPage() {
       ref={containerRef}
       className="relative w-screen h-screen overflow-hidden bg-[#0a0a0b] text-[#f1f1f3] font-sans select-none gel"
     >
-      {/* fundo: véu translúcido global para legibilidade */}
+      {/* fundo: véu translúcido global + embeds sketchfab por seção */}
       <div className="pointer-events-none absolute inset-0 bg-black/60" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#0a0a0b] to-transparent" />
+      <div className="pointer-events-none absolute inset-0">
+        <SectionBackdrop active={active} />
+      </div>
 
       <AnimatePresence custom={direction} mode="popLayout">
         <motion.section
@@ -354,6 +357,11 @@ function Typewriter({ words, typingMs = 70, pauseMs = 1600 }: { words: string[];
   );
 }
 
+// embeds sketchfab por seção (pointer-events-none — não bloqueiam o conteúdo)
+const SECTION_EMBEDS: Record<string, string> = {
+  skills: "https://sketchfab.com/models/aac6cfe455a846cdbe8c88f04ec89820/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_hint=0&ui_theme=dark&dnt=1",
+};
+
 // fundo da intro: modelo Tentacle (sketchfab, museudocomputador) girando atrás do nome
 const INTRO_EMBED =
   "https://sketchfab.com/models/3f288cc3ace24294b628fdd0381ffab3/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_infos=0&ui_stop=0&ui_inspector=0&ui_hint=0&ui_help=0&ui_settings=0&ui_vr=0&ui_annotations=0&ui_theme=dark&dnt=1";
@@ -369,6 +377,23 @@ function IntroPoster() {
         title="Day of the Tentacle - Museu do Computador"
       />
     </div>
+  );
+}
+
+// fundo por seção: embed montado apenas na seção ativa (troca via state)
+function SectionBackdrop({ active }: { active: number }) {
+  const id = sectionConfigs[active].id;
+  const url = SECTION_EMBEDS[id];
+  if (!url) return null;
+  return (
+    <iframe
+      key={id}
+      src={url}
+      className="absolute inset-0 h-full w-full opacity-50"
+      allow="autoplay; fullscreen; xr-spatial-tracking"
+      allowFullScreen
+      title={`Fundo ${id}`}
+    />
   );
 }
 

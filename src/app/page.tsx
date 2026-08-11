@@ -362,7 +362,7 @@ const SECTION_EMBEDS: Record<string, { url: string; topPct: number; heightPct: n
   // ui_* zerados + dnt=1: sem VR, ajuda, inspetor, tela cheia, anotações,
   // barra de animação, botão parar/fullscreen — só o 3D girando
   // heightPct/topPct: iframe maior que a tela corta a barra do sketchfab por baixo
-  about: {
+  projects: {
     url: "https://sketchfab.com/models/eb88f06b4bc342d6bfa99e7608f1d7be/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_vr=0&ui_annotations=0&ui_stop=0&ui_fadeout=1&ui_theme=dark&dnt=1",
     topPct: -14,
     heightPct: 128,

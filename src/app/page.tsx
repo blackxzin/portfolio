@@ -362,6 +362,13 @@ const SECTION_EMBEDS: Record<string, { url: string; topPct: number; heightPct: n
   // ui_* zerados + dnt=1: sem VR, ajuda, inspetor, tela cheia, anotações,
   // barra de animação, botão parar/fullscreen — só o 3D girando
   // heightPct/topPct: iframe maior que a tela corta a barra do sketchfab por baixo
+  competencies: {
+    // Earth hologram — com filtro escurecedor separado (mais opaco que os demais)
+    url: "https://sketchfab.com/models/87072288fb234226b9a3f02ae674a310/embed?autospin=1&autostart=1&preload=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_vr=0&ui_annotations=0&ui_stop=0&ui_fadeout=1&ui_theme=dark&dnt=1",
+    topPct: -14,
+    heightPct: 128,
+    dim: 0.45,
+  },
   contact: {
     url: "https://sketchfab.com/models/eb88f06b4bc342d6bfa99e7608f1d7be/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_vr=0&ui_annotations=0&ui_stop=0&ui_fadeout=1&ui_theme=dark&dnt=1",
     topPct: -14,
@@ -404,12 +411,20 @@ function SectionBackdrop({ active }: { active: number }) {
       <iframe
         key={id}
         src={conf.url}
-        className="pointer-events-none absolute left-0 w-full opacity-60"
-        style={{ top: `${conf.topPct}%`, height: `${conf.heightPct}%` }}
+        className="pointer-events-none absolute left-0 w-full"
+        style={{
+          top: `${conf.topPct}%`,
+          height: `${conf.heightPct}%`,
+          opacity: conf.dim ?? 0.6,
+        }}
         allow="autoplay; fullscreen; xr-spatial-tracking"
         allowFullScreen
         title={`Fundo ${id}`}
       />
+      {/* escurece mais quando a seção pede (destaque pros textos) */}
+      {conf.dim ? (
+        <div className="pointer-events-none absolute inset-0" style={{ background: "rgba(10,10,11,0.35)" }} />
+      ) : null}
     </div>
   );
 }

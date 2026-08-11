@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
+import Scene3D, { setSceneMouse } from "@/components/Scene3D";
 
 const PANEL_WIDTH = 636;
 
@@ -59,9 +60,9 @@ export default function PortfolioPage() {
   const [active, setActive] = useState(0);
   const [direction, setDirection] = useState(1);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [introDone, setIntroDone] = useState(false);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
   useEffect(() => setMounted(true), []);
 
@@ -80,14 +81,66 @@ export default function PortfolioPage() {
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    const nx = (e.clientX / window.innerWidth) * 2 - 1;
-    const ny = (e.clientY / window.innerHeight) * 2 - 1;
-    setMouse({ x: nx, y: ny });
+    setSceneMouse((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1);
   };
 
   if (!mounted) return <div className="w-screen h-screen bg-[#0a0a0b]" />;
 
   const current = sectionConfigs[active];
+
+  // tela de apresentação: castelo + nome + CTA "entrar" — vira a página 1 do portfolio
+  if (!introDone) {
+    return (
+      <div
+        className="relative w-screen h-screen overflow-hidden bg-[#0a0a0b] text-[#f1f1f3] font-sans select-none"
+        onMouseMove={handleMouseMove}
+      >
+        <div className="absolute inset-0" style={{ maskImage: "radial-gradient(ellipse 120% 110% at 50% 40%, black 35%, transparent 75%)", WebkitMaskImage: "radial-gradient(ellipse 120% 110% at 50% 40%, black 35%, transparent 75%)" }}>
+          <Scene3D intro />
+        </div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 px-6 text-center">
+          <motion.img
+            src="/avatar.png"
+            alt="Avatar"
+            initial={{ opacity: 0, y: -40, scale: 0.7 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="h-24 w-24 rounded-full border-2 border-[#7c3aed]/50 shadow-[0_0_60px_rgba(124,58,237,0.35)]"
+          />
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.25, ease: "easeOut" }}
+            className="text-5xl font-black tracking-tight md:text-7xl"
+          >
+            LUCAS <span className="text-[#a78bfa]">GABRIEL</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.9, delay: 0.55 }}
+            className="text-sm font-medium tracking-[0.3em] text-[#9394a0] uppercase"
+          >
+            Desenvolvedor Full Stack · Automação · Eng. de Software
+          </motion.p>
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.85 }}
+            onClick={() => setIntroDone(true)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.96 }}
+            className="mt-2 rounded-full bg-[#7c3aed] px-8 py-3 text-sm font-bold text-white shadow-[0_0_40px_rgba(124,58,237,0.5)] transition hover:bg-[#6d28d9]"
+          >
+            Entrar no portfólio →
+          </motion.button>
+        </div>
+        <p className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[11px] text-[#5b5c68]">
+          Castelo de Lastours · modelo 3D
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -95,17 +148,26 @@ export default function PortfolioPage() {
       className="relative w-screen h-screen overflow-hidden bg-[#0a0a0b] text-[#f1f1f3] font-sans select-none gel"
       onMouseMove={handleMouseMove}
     >
-      <motion.div className="absolute inset-0 pointer-events-none" style={{ perspective: 1200 }}>
-        <div className="absolute -top-40 left-1/2 h-[720px] w-[720px] -translate-x-1/2 rounded-full bg-[#7c3aed]/[0.08] blur-[140px]" />
-        <div className="absolute top-[20%] -left-48 h-[420px] w-[420px] rounded-full bg-[#34d399]/[0.05] blur-[110px]" />
-
-        <FloatingIcon src="/icon-browser.png" active={active} dir={direction} index={0} mouse={mouse} />
-        <FloatingIcon src="/icon-gear.png" active={active} dir={direction} index={1} mouse={mouse} />
-        <FloatingIcon src="/icon-db.png" active={active} dir={direction} index={2} mouse={mouse} />
-        <FloatingIcon src="/icon-terminal.png" active={active} dir={direction} index={3} mouse={mouse} />
-        <FloatingIcon src="/icon-key.png" active={active} dir={direction} index={4} mouse={mouse} />
-        <FloatingIcon src="/icon-component.png" active={active} dir={direction} index={5} mouse={mouse} />
-      </motion.div>
+      {/* fundo 3D — castelo (WebGL) ou robô sci-fi (Sketchfab) na seção Habilidades */}
+      <div
+        className="absolute inset-0"
+        style={{ maskImage: "radial-gradient(ellipse 120% 110% at 50% 40%, black 30%, transparent 72%)", WebkitMaskImage: "radial-gradient(ellipse 120% 110% at 50% 40%, black 30%, transparent 72%)" }}
+      >
+        {active === 1 ? (
+          <iframe
+            src="https://sketchfab.com/models/77fd0495b4e74913aebec746b27c344e/embed?autostart=1&muted=1&preload=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_annotations=0&ui_stop=0"
+            className="pointer-events-none h-full w-full"
+            allow="autoplay; fullscreen; xr-spatial-tracking"
+            allowFullScreen
+            title="Monocykl Sci-Fi Robot"
+          />
+        ) : (
+          <Scene3D />
+        )}
+      </div>
+      {/* véu preto translúcido para legibilidade do conteúdo */}
+      <div className="absolute inset-0 bg-black/60" />
+      <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#0a0a0b] to-transparent" />
 
       <AnimatePresence custom={direction} mode="popLayout">
         <motion.section
@@ -710,61 +772,4 @@ function FadeIn({
 
 function Skeleton() {
   return <div className="h-40 animate-pulse rounded-2xl border border-white/5 bg-[#16161a]" />;
-}
-
-// Posições de órbita por seção: cada ícone envolve o painel conforme a seção ativa
-const orbitLayouts: { x: number; y: number }[][] = [
-  // Sobre (0)
-  [{ x: 84, y: 16 }, { x: 7, y: 60 }, { x: 74, y: 40 }, { x: 14, y: 20 }, { x: 82, y: 76 }, { x: 16, y: 74 }],
-  // Habilidades (1)
-  [{ x: 88, y: 20 }, { x: 6, y: 70 }, { x: 72, y: 28 }, { x: 10, y: 18 }, { x: 86, y: 82 }, { x: 20, y: 68 }],
-  // Competências (2)
-  [{ x: 84, y: 18 }, { x: 8, y: 58 }, { x: 70, y: 44 }, { x: 18, y: 22 }, { x: 88, y: 72 }, { x: 12, y: 70 }],
-  // Metas (3)
-  [{ x: 86, y: 12 }, { x: 9, y: 64 }, { x: 76, y: 50 }, { x: 14, y: 16 }, { x: 80, y: 84 }, { x: 18, y: 78 }],
-  // Projetos (4)
-  [{ x: 92, y: 12 }, { x: 5, y: 62 }, { x: 80, y: 30 }, { x: 12, y: 12 }, { x: 90, y: 78 }, { x: 8, y: 82 }],
-  // Contato (5)
-  [{ x: 84, y: 14 }, { x: 8, y: 56 }, { x: 72, y: 46 }, { x: 16, y: 18 }, { x: 86, y: 74 }, { x: 14, y: 76 }],
-];
-
-function FloatingIcon({ src, active, dir, rotation = [-12, 14, -10, 8, -16, 12][0], size = 90, delay = 0, index = 0, mouse }: {
-  src: string; active: number; dir: number;
-  rotation?: number; size?: number; delay?: number; index?: number; mouse?: { x: number; y: number };
-}) {
-  const rot = rotation ?? [-12, 14, -10, 8, -16, 12][index % 6];
-  const depth = 18 + (index % 3) * 20;
-  const mx = mouse?.x ?? 0;
-  const my = mouse?.y ?? 0;
-  const target = orbitLayouts[active % orbitLayouts.length][index % 6];
-  // reação à navegação: os ícones "atraem" pra uma órbita ligeiramente deslocada na direção do slide
-  const orbit = {
-    x: target.x - dir * (12 + (index % 3) * 4),
-    y: target.y,
-  };
-  return (
-    <motion.img
-      src={src}
-      alt=""
-      className="pointer-events-none absolute"
-      style={{
-        width: size,
-        x: mx * depth + my * depth * 0.3,
-        opacity: 0.5 + index * 0.06, // ícones aparentes
-        filter: `blur(${index % 2 === 0 ? 0 : 1}px) drop-shadow(0 ${10 + index * 6}px ${6 + index * 4}px rgba(0,0,0,0.5))`,
-      }}
-      animate={{
-        left: `${orbit.x}%`,
-        top: `${orbit.y}%`,
-        rotate: [rot, rot + 5, rot - 4, rot],
-        scale: [1, 1.06, 0.97, 1],
-      }}
-      transition={{
-        left: { type: "spring", duration: 1.1, bounce: 0.2 },
-        top: { type: "spring", duration: 1.1, bounce: 0.2 },
-        rotate: { duration: 8 + index, ease: "easeInOut", repeat: Infinity, delay },
-        scale: { duration: 8 + index, ease: "easeInOut", repeat: Infinity, delay },
-      }}
-    />
-  );
 }

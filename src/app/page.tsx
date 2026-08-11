@@ -61,7 +61,7 @@ export default function PortfolioPage() {
   const [direction, setDirection] = useState(1);
   const [menuOpen, setMenuOpen] = useState(false);
   const [introDone, setIntroDone] = useState(false);
-
+  
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => setMounted(true), []);
@@ -83,7 +83,7 @@ export default function PortfolioPage() {
   const handleMouseMove = (e: React.MouseEvent) => {
     setSceneMouse((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1);
   };
-
+  
   if (!mounted) return <div className="w-screen h-screen bg-[#0a0a0b]" />;
 
   const current = sectionConfigs[active];
@@ -119,7 +119,7 @@ export default function PortfolioPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.9, delay: 0.55 }}
-            className="text-sm font-medium tracking-[0.3em] text-[#9394a0] uppercase"
+            className="text-sm font-medium tracking-[0.3em] text-[#a6a7b3] uppercase"
           >
             Desenvolvedor Full Stack · Automação · Eng. de Software
           </motion.p>
@@ -148,26 +148,16 @@ export default function PortfolioPage() {
       className="relative w-screen h-screen overflow-hidden bg-[#0a0a0b] text-[#f1f1f3] font-sans select-none gel"
       onMouseMove={handleMouseMove}
     >
-      {/* fundo 3D — castelo (WebGL) ou robô sci-fi (Sketchfab) na seção Habilidades */}
+      {/* fundo 3D — modelo local otimizado por seção (sem iframes externos) */}
       <div
         className="absolute inset-0"
         style={{ maskImage: "radial-gradient(ellipse 120% 110% at 50% 40%, black 30%, transparent 72%)", WebkitMaskImage: "radial-gradient(ellipse 120% 110% at 50% 40%, black 30%, transparent 72%)" }}
       >
-        {active === 1 ? (
-          <iframe
-            src="https://sketchfab.com/models/77fd0495b4e74913aebec746b27c344e/embed?autostart=1&muted=1&preload=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_annotations=0&ui_stop=0"
-            className="pointer-events-none h-full w-full"
-            allow="autoplay; fullscreen; xr-spatial-tracking"
-            allowFullScreen
-            title="Monocykl Sci-Fi Robot"
-          />
-        ) : (
-          <Scene3D />
-        )}
+        <Gallery3DBackdrop active={active} />
       </div>
-      {/* véu preto translúcido para legibilidade do conteúdo */}
-      <div className="absolute inset-0 bg-black/60" />
-      <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#0a0a0b] to-transparent" />
+      {/* véu preto translúcido para legibilidade do conteúdo (não bloqueia drag no 3D) */}
+      <div className="pointer-events-none absolute inset-0 bg-black/60" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#0a0a0b] to-transparent" />
 
       <AnimatePresence custom={direction} mode="popLayout">
         <motion.section
@@ -178,11 +168,11 @@ export default function PortfolioPage() {
           animate="center"
           exit="exit"
           transition={SPRING}
-          drag="x"
+          drag={active === 1 || active === 2 || active === 4 ? false : "x"}
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.2}
           onDragEnd={handleDragEnd}
-          className="absolute inset-0 flex items-center justify-center px-6 pt-20 pb-10 md:px-12 md:pt-24"
+          className={"absolute inset-0 flex items-center justify-center px-6 pt-20 pb-10 md:px-12 md:pt-24" + (active === 1 || active === 2 || active === 4 ? " pointer-events-none" : "")}
         >
           <motion.div
             initial={{ scale: 1 }}
@@ -226,8 +216,8 @@ export default function PortfolioPage() {
             <button
               key={item.id}
               onClick={() => goTo(idx)}
-              className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
-                idx === active ? "bg-[#7c3aed] text-white shadow-lg" : "text-[#9394a0] hover:text-[#a78bfa]"
+                            className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
+                idx === active ? "bg-[#7c3aed] text-white shadow-lg" : "text-[#a6a7b3] hover:text-[#a78bfa]"
               }`}
             >
               {item.title}
@@ -272,7 +262,7 @@ export default function PortfolioPage() {
                 key={item.id}
                 onClick={() => { goTo(idx); setMenuOpen(false); }}
                 className={`w-40 rounded-full px-4 py-2 text-xs font-semibold transition ${
-                  idx === active ? "bg-[#7c3aed] text-white" : "text-[#9394a0] hover:text-[#a78bfa]"
+                  idx === active ? "bg-[#7c3aed] text-white" : "text-[#a6a7b3] hover:text-[#a78bfa]"
                 }`}
               >
                 {item.title}
@@ -293,7 +283,7 @@ export default function PortfolioPage() {
               href={s.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#16161a]/60 text-sm text-[#9394a0] transition hover:border-[#7c3aed]/60 hover:text-[#a78bfa]"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#16161a]/60 text-sm text-[#a6a7b3] transition hover:border-[#7c3aed]/60 hover:text-[#a78bfa]"
               aria-label={s.icon}
             >
               {s.icon}
@@ -341,7 +331,7 @@ function readmeFirstLine(raw: string): string {
 function PanelShell({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
   return (
     <div>
-      <h2 className="text-3xl font-bold text-[#f1f1f3]">
+      <h2 className="text-2xl font-bold text-[#f1f1f3]">
         <span className="text-[#a78bfa]">&gt;</span> {title}
       </h2>
       {subtitle ? <p className="mt-2 text-sm text-[#5b5c68]">{subtitle}</p> : null}
@@ -378,20 +368,41 @@ function Typewriter({ words, typingMs = 70, pauseMs = 1600 }: { words: string[];
   );
 }
 
+// fundo 3D por seção: modelo local carregado sob demanda (preload do vizinho)
+const SECTION_MODELS: Record<string, { path: string; accent: string; label: string }> = {
+  about: { path: "/models/chateau_de_lastours.glb", accent: "#a78bfa", label: "Castelo de Lastours" },
+  skills: { path: "/models/loft_5_interior_for_free.glb", accent: "#a78bfa", label: "Loft" },
+  competencies: { path: "/models/loft_japanese_11_free_interior.glb", accent: "#22d3ee", label: "Loft japonês" },
+  journey: { path: "/models/chateau_de_lastours.glb", accent: "#34d399", label: "Castelo de Lastours" },
+  projects: { path: "/models/street_city_7_for_games_free.glb", accent: "#34d399", label: "Cidade" },
+  contact: { path: "/models/chateau_de_lastours.glb", accent: "#a78bfa", label: "Castelo de Lastours" },
+};
+
+function Gallery3DBackdrop({ active }: { active: number }) {
+  const current = sectionConfigs[active];
+  const model = SECTION_MODELS[current.id];
+
+  return (
+    <div key={current.id} className="h-full w-full">
+      <Scene3D path={model.path} accent={model.accent} label={model.label} />
+    </div>
+  );
+}
+
 function AboutPanel() {
   return (
     <PanelShell title="Sobre mim" subtitle="Conheça mais sobre minha trajetória">
       <FadeIn index={0} className="rounded-2xl border border-white/5 bg-[#16161a] p-6 md:p-8 glass">
-        <p className="text-[15px] leading-relaxed text-[#9394a0]">
+        <p className="text-[15px] leading-relaxed text-[#a6a7b3]">
           Olá, eu sou <strong className="text-[#f1f1f3]">Lucas Gabriel</strong>, estudante de{" "}
           <strong className="text-[#f1f1f3]">Análise e Desenvolvimento de Sistemas</strong> (ADS) na UniCesumar,
           com foco em <strong className="text-[#f1f1f3]">Engenharia de Software</strong> e automação de processos.
         </p>
-        <p className="mt-4 text-[15px] leading-relaxed text-[#9394a0]">
+        <p className="mt-4 text-[15px] leading-relaxed text-[#a6a7b3]">
           Atualmente desenvolvo projetos práticos de <strong className="text-[#f1f1f3]">lógica de programação, arquitetura de software,
           integração de APIs, containerização (Docker) e automação com n8n</strong> — sempre aplicando boas práticas usadas no mercado.
         </p>
-        <p className="mt-4 text-[15px] leading-relaxed text-[#9394a0]">
+        <p className="mt-4 text-[15px] leading-relaxed text-[#a6a7b3]">
           Tenho facilidade de aprender, comprometimento com <strong className="text-[#f1f1f3]">código limpo</strong> e interesse genuíno em
           <strong className="text-[#f1f1f3]"> automação e integração entre sistemas</strong>.
         </p>
@@ -415,7 +426,7 @@ function AboutPanel() {
         <h3 className="text-base font-semibold text-[#f1f1f3]">
           <span className="text-[#a78bfa]">&gt;</span> Objetivo Profissional
         </h3>
-        <p className="mt-3 text-[15px] leading-relaxed text-[#9394a0]">
+        <p className="mt-3 text-[15px] leading-relaxed text-[#a6a7b3]">
           Busco minha <strong className="text-[#f1f1f3]">primeira oportunidade de estágio em TI</strong> para aplicar na prática
           o que aprendo em teoria, evoluir profissionalmente e contribuir com soluções de qualidade para um time real.
         </p>
@@ -424,10 +435,35 @@ function AboutPanel() {
   );
 }
 
+const skillLevels: Record<string, 1 | 2 | 3 | 4 | 5> = {
+  Java: 4,
+  Python: 4,
+  JavaScript: 3,
+  TypeScript: 3,
+  HTML5: 5,
+  CSS3: 4,
+  SQL: 3,
+  Git: 3,
+  GitHub: 3,
+  "Lógica de Programação": 5,
+  "Desenvolvimento Web": 4,
+  "Banco de Dados": 3,
+  "Automação": 4,
+  "APIs REST": 4,
+};
+
+const levelLabels: Record<number, string> = {
+  1: "Exemplo",
+  2: "Básico",
+  3: "Intermediário",
+  4: "Bom",
+  5: "Avançado",
+};
+
 function SkillsPanel() {
   return (
     <PanelShell title="Habilidades Técnicas" subtitle="Tecnologias e linguagens que utilizo">
-      <FadeIn index={0} className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {[
           { name: "Java", color: "#f89820" },
           { name: "Python", color: "#3572A5" },
@@ -443,16 +479,39 @@ function SkillsPanel() {
           { name: "Banco de Dados", color: "#336791" },
           { name: "Automação", color: "#f97316" },
           { name: "APIs REST", color: "#22d3ee" },
-        ].map((skill) => (
-          <span
-            key={skill.name}
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#16161a] px-4 py-2 text-xs font-medium text-[#9394a0] transition hover:border-[#7c3aed]/60 hover:bg-[#1c1c21] hover:text-[#a78bfa] hover:-translate-y-0.5 glass"
-          >
-            <span className="h-2 w-2 rounded-full" style={{ background: skill.color }} />
-            {skill.name}
-          </span>
-        ))}
-      </FadeIn>
+        ].map((skill, idx) => {
+          const level = skillLevels[skill.name] ?? 3;
+          return (
+            <FadeIn
+              key={skill.name}
+              index={idx}
+              className="group rounded-2xl border border-white/5 bg-[#16161a] p-4 transition hover:bg-[#1c1c21] hover:border-white/10 glass"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-[#f1f1f3] transition group-hover:text-[#a78bfa]"
+                  style={{ color: "inherit" }}
+                >
+                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: skill.color, boxShadow: `0 0 8px ${skill.color}` }} />
+                  {skill.name}
+                </span>
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#5b5c68]">
+                  {levelLabels[level]}
+                </span>
+              </div>
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/5">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${level * 20}%` }}
+                  transition={{ delay: 0.2 + idx * 0.05, duration: 0.8, ease: "easeOut" }}
+                  className="h-full rounded-full"
+                  style={{ background: `linear-gradient(90deg, ${skill.color}99, ${skill.color})`, boxShadow: `0 0 12px ${skill.color}66` }}
+                />
+              </div>
+            </FadeIn>
+          );
+        })}
+      </div>
     </PanelShell>
   );
 }
@@ -479,7 +538,7 @@ function CompetenciesPanel() {
           >
             <div className="mb-4 text-3xl">{item.icon}</div>
             <h3 className="text-sm font-semibold text-[#f1f1f3] transition group-hover:text-[#a78bfa]">{item.title}</h3>
-            <p className="mt-1 text-[13px] leading-relaxed text-[#9394a0]">{item.desc}</p>
+            <p className="mt-1 text-[13px] leading-relaxed text-[#a6a7b3]">{item.desc}</p>
           </FadeIn>
         ))}
       </div>
@@ -528,7 +587,7 @@ function JourneyPanel() {
                 {stage.badge}
               </span>
             </div>
-            <p className="mt-2 text-[13px] leading-relaxed text-[#9394a0]">{stage.desc}</p>
+            <p className="mt-2 text-[13px] leading-relaxed text-[#a6a7b3]">{stage.desc}</p>
           </FadeIn>
         ))}
       </div>
@@ -663,7 +722,7 @@ function ProjectsPanel() {
                 Repo ↗
               </a>
             </div>
-            <p className="mt-2 text-[13px] leading-relaxed text-[#9394a0]">{repo.description || repo.readme || "Sem descrição ainda."}</p>
+            <p className="mt-2 text-[13px] leading-relaxed text-[#a6a7b3]">{repo.description || repo.readme || "Sem descrição ainda."}</p>
             <div className="mt-4 flex flex-wrap items-center gap-3 text-[11px] text-[#5b5c68]">
               {repo.language ? (
                 <span className="inline-flex items-center gap-2">

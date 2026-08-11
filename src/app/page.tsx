@@ -354,13 +354,21 @@ function Typewriter({ words, typingMs = 70, pauseMs = 1600 }: { words: string[];
   );
 }
 
-// fundo da intro: brilho suave no lugar do 3D
+// fundo da intro: modelo Tentacle (sketchfab, museudocomputador) girando atrás do nome
+const INTRO_EMBED =
+  "https://sketchfab.com/models/3f288cc3ace24294b628fdd0381ffab3/embed?autospin=1&preload=1&transparent=1&ui_infos=0&ui_stop=0&ui_inspector=0&ui_hint=0&ui_help=0&ui_settings=0&ui_vr=0&ui_annotations=0&ui_theme=dark&dnt=1";
+
 function IntroPoster() {
   return (
-    <div
-      className="h-full w-full"
-      style={{ background: "radial-gradient(ellipse 90% 70% at 50% 42%, #7c3aed20, transparent 70%)" }}
-    />
+    <div className="relative h-full w-full" style={{ background: "radial-gradient(ellipse 90% 70% at 50% 42%, #7c3aed20, transparent 70%)" }}>
+      <iframe
+        src={INTRO_EMBED}
+        className="pointer-events-none absolute inset-0 h-full w-full opacity-70"
+        allow="autoplay; fullscreen; xr-spatial-tracking"
+        allowFullScreen
+        title="Day of the Tentacle - Museu do Computador"
+      />
+    </div>
   );
 }
 

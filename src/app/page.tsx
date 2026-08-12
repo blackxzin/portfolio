@@ -535,7 +535,7 @@ function SectionBackdrop({ active }: { active: number }) {
 function AboutPanel() {
   return (
     <PanelShell title="Sobre mim" subtitle="Conheça mais sobre minha trajetória">
-      <FadeIn index={0} className="rounded-2xl border border-white/5 bg-[#16161a] p-6 md:p-8 glass">
+      <FadeIn index={0} className="rounded-2xl p-6 md:p-8 glass">
         <p className="text-[15px] leading-relaxed text-[#a6a7b3]">
           Olá, eu sou <strong className="text-[#f1f1f3]">Lucas Gabriel</strong>, estudante de{" "}
           <strong className="text-[#f1f1f3]">Análise e Desenvolvimento de Sistemas</strong> (ADS) na UniCesumar,
@@ -558,14 +558,14 @@ function AboutPanel() {
           { label: "🎯 Buscando", value: "1ª oportunidade em TI (estágio)" },
           { label: "📍 Localização", value: "Brasil" },
         ].map((item, idx) => (
-          <FadeIn key={item.label} index={idx + 1} className="rounded-2xl border border-white/5 bg-[#16161a] p-5 transition hover:bg-[#1c1c21] hover:border-white/10 glass">
+          <FadeIn key={item.label} index={idx + 1} className="rounded-2xl p-5 glass">
             <div className="text-[11px] font-semibold uppercase tracking-widest text-[#a78bfa]">{item.label}</div>
             <div className="mt-1 text-sm font-medium text-[#f1f1f3]">{item.value}</div>
           </FadeIn>
         ))}
       </div>
 
-      <FadeIn index={5} className="mt-6 rounded-2xl border border-white/5 bg-[#16161a] p-6 md:p-8 glass">
+      <FadeIn index={5} className="mt-6 rounded-2xl p-6 md:p-8 glass">
         <h3 className="text-base font-semibold text-[#f1f1f3]">
           <span className="text-[#a78bfa]">&gt;</span> Objetivo Profissional
         </h3>
@@ -628,7 +628,7 @@ function SkillsPanel() {
             <FadeIn
               key={skill.name}
               index={idx}
-              className="group rounded-2xl border border-white/5 bg-[#16161a] p-4 transition hover:bg-[#1c1c21] hover:border-white/10 glass"
+              className="group rounded-2xl p-4 glass"
             >
               <div className="flex items-center justify-between gap-2">
                 <span
@@ -677,7 +677,7 @@ function CompetenciesPanel() {
           <FadeIn
             key={item.title}
             index={idx}
-            className="group rounded-2xl border border-white/5 bg-[#16161a] p-6 transition hover:bg-[#1c1c21] hover:border-white/10 glass"
+            className="group rounded-2xl p-6 glass"
           >
             <div className="mb-4 text-3xl">{item.icon}</div>
             <h3 className="text-sm font-semibold text-[#f1f1f3] transition group-hover:text-[#a78bfa]">{item.title}</h3>
@@ -721,7 +721,7 @@ function JourneyPanel() {
           <FadeIn
             key={stage.id}
             index={idx}
-            className="rounded-2xl border border-white/5 bg-[#16161a] p-5 transition hover:border-white/10 glass"
+            className="rounded-2xl p-5 glass"
             style={{ borderLeft: `3px solid ${stage.accent}` }}
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -857,7 +857,7 @@ function ProjectsPanel() {
           <FadeIn
             key={repo.name}
             index={idx}
-            className="group rounded-2xl border border-white/5 bg-[#16161a] p-5 transition hover:bg-[#1c1c21] hover:border-white/10 glass"
+            className="group rounded-2xl p-5 glass"
           >
             <div className="flex items-start justify-between gap-3">
               <h3 className="text-sm font-semibold text-[#f1f1f3] transition group-hover:text-[#a78bfa]">{repo.name}</h3>
@@ -920,7 +920,7 @@ function ContactPanel() {
                 window.open(contact.href, contact.href.startsWith("http") ? "_blank" : "_self");
               }
             }}
-            className="group flex cursor-pointer items-center gap-4 rounded-2xl border border-white/5 bg-[#16161a] p-5 transition hover:bg-[#1c1c21] hover:border-white/10 glass"
+            className="group flex cursor-pointer items-center gap-4 rounded-2xl p-5 glass"
           >
             <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-white/5 bg-[#0a0a0b] text-lg">
               {contact.icon}

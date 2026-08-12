@@ -2,12 +2,40 @@
 
 @layer utilities {
   .glass {
-    background: rgba(22, 22, 26, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+    background: linear-gradient(160deg, rgba(28, 28, 36, 0.72), rgba(16, 16, 22, 0.6));
+    border: 1px solid rgba(255, 255, 255, 0.09);
     backdrop-filter: blur(18px) saturate(140%);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.07);
     border-radius: 1.25rem;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+
+  /* contorno em gradiente (técnica border-image) — borda tech sem peso visual */
+  .glass::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(150deg, rgba(167, 139, 250, 0.4), rgba(255, 255, 255, 0.04) 40%, rgba(52, 211, 153, 0.25));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.55;
+    transition: opacity 0.25s ease;
+  }
+
+  .glass:hover::before {
+    opacity: 1;
+  }
+
+  .glass:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.5), 0 0 24px rgba(124, 58, 237, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    border-color: rgba(167, 139, 250, 0.22);
   }
 
   .gel {

@@ -157,11 +157,11 @@ export default function PortfolioPage() {
           animate="center"
           exit="exit"
           transition={SPRING}
-          drag={active === 1 || active === 2 || active === 4 ? false : "x"}
+          drag={active === 1 || active === 2 ? false : "x"}
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.2}
           onDragEnd={handleDragEnd}
-          className={"absolute inset-0 flex items-center justify-center px-6 pt-20 pb-10 md:px-12 md:pt-24" + (active === 1 || active === 2 || active === 4 ? " pointer-events-none" : "")}
+          className={"absolute inset-0 flex items-center justify-center px-6 pt-20 pb-10 md:px-12 md:pt-24" + (active === 1 || active === 2 ? " pointer-events-none" : "")}
         >
           <motion.div
             initial={{ scale: 1 }}

@@ -190,62 +190,108 @@ export default function PortfolioPage() {
         </motion.section>
       </AnimatePresence>
 
-      <header className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between border-b border-white/5 bg-gradient-to-b from-[#0a0a0b] via-[#0a0a0b]/85 to-transparent px-6 py-4 md:px-12">
-        <div className="flex items-center gap-3">
-          <img src="/avatar.png" alt="Avatar" className="h-9 w-9 rounded-full border border-white/10 bg-white/5 object-cover" />
-          <div className="min-w-0">
-            <h2 className="text-xs font-extrabold tracking-widest text-[#f1f1f3]">LUCAS GABRIEL</h2>
-          <p className="text-[11px] font-medium text-[#5b5c68]">
-            <Typewriter words={["Desenvolvedor Full Stack", "Automação · Docker · n8n", "Eng. de Software", "Integração de APIs"]} />
-          </p>
+      <header className="absolute top-4 left-1/2 z-50 -translate-x-1/2">
+        <div className="flex items-center gap-4 rounded-full border border-white/10 bg-[#0d0d10]/80 px-4 py-2 shadow-[0_8px_40px_rgba(0,0,0,0.5)] backdrop-blur-xl md:gap-6 md:px-6">
+          {/* identidade */}
+          <div className="flex items-center gap-2.5">
+            <div className="relative">
+              <img src="/avatar.png" alt="Avatar" className="h-9 w-9 rounded-full object-cover ring-2 ring-[#7c3aed]/40" />
+              <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#34d399] opacity-60" />
+                <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-[#0d0d10] bg-[#34d399]" />
+              </span>
             </div>
-        </div>
+            <div className="hidden sm:block">
+              <h2 className="text-xs font-extrabold tracking-widest text-[#f1f1f3]">
+                LUCAS <span className="text-[#a78bfa]">GABRIEL</span>
+              </h2>
+              <p className="text-[10px] font-medium text-[#5b5c68]">
+                <Typewriter words={["Desenvolvedor Full Stack", "Automação · Docker · n8n", "Eng. de Software", "Integração de APIs"]} />
+              </p>
+            </div>
+          </div>
 
-        <div className="hidden md:flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#34d399]/30 bg-[#34d399]/10 px-3 py-1 text-[10px] font-semibold text-[#34d399]">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#34d399] opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#34d399]" />
+          <span className="hidden h-6 w-px bg-white/10 lg:block" />
+
+          {/* navegação com indicador deslizante */}
+          <nav className="hidden md:flex items-center gap-1">
+            {sectionConfigs.map((item, idx) => (
+              <button
+                key={item.id}
+                onClick={() => goTo(idx)}
+                className={`relative rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
+                  idx === active ? "text-white" : "text-[#a6a7b3] hover:text-[#a78bfa]"
+                }`}
+              >
+                {idx === active && (
+                  <motion.span
+                    layoutId="nav-pill"
+                    className="absolute inset-0 rounded-full bg-gradient-to-r from-[#7c3aed] to-[#a78bfa] shadow-[0_0_20px_rgba(124,58,237,0.45)]"
+                    transition={{ type: "spring", duration: 0.6, bounce: 0.25 }}
+                  />
+                )}
+                <span className="relative z-10">{item.title}</span>
+              </button>
+            ))}
+          </nav>
+
+          <span className="hidden h-6 w-px bg-white/10 md:block" />
+
+          {/* status */}
+          <div className="hidden md:flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#34d399]/30 bg-[#34d399]/10 px-3 py-1 text-[10px] font-semibold text-[#34d399]">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#34d399] opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#34d399]" />
+              </span>
+              Disponível para estágio
             </span>
-            Disponível para estágio
-          </span>
-        </div>
+          </div>
 
-        <nav className="hidden md:flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1">
-          {sectionConfigs.map((item, idx) => (
+          {/* mobile: menu */}
+          <button
+            onClick={() => setMenuOpen((o) => !o)}
+            className="md:hidden flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-[#16161a]/60 text-sm text-[#f1f1f3]"
+            aria-label="Menu"
+          >
+            {menuOpen ? "✕" : "☰"}
+          </button>
+
+          {/* desktop: prev/next */}
+          <div className="hidden items-center gap-1.5 md:flex">
             <button
-              key={item.id}
-              onClick={() => goTo(idx)}
-                            className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
-                idx === active ? "bg-[#7c3aed] text-white shadow-lg" : "text-[#a6a7b3] hover:text-[#a78bfa]"
-              }`}
+              onClick={prev}
+              aria-label="Anterior"
+              className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[11px] text-[#a6a7b3] transition hover:border-[#7c3aed]/60 hover:text-[#a78bfa]"
             >
-              {item.title}
+              ←
             </button>
-          ))}
-        </nav>
+            <button
+              onClick={next}
+              aria-label="Próxima"
+              className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[11px] text-[#a6a7b3] transition hover:border-[#7c3aed]/60 hover:text-[#a78bfa]"
+            >
+              →
+            </button>
+          </div>
 
-        <button
-          onClick={() => setMenuOpen((o) => !o)}
-          className="md:hidden flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#16161a]/60 text-sm text-[#f1f1f3]"
-          aria-label="Menu"
-        >
-          {menuOpen ? "✕" : "☰"}
-        </button>
-
-        <div className="hidden md:flex items-center gap-2">
-          <button
-            onClick={prev}
-            className="rounded-full border border-white/10 bg-[#16161a]/60 px-4 py-2 text-xs font-semibold text-[#f1f1f3] hover:border-[#7c3aed]/60 hover:text-[#a78bfa] transition glass"
-          >
-            ← Anterior
-          </button>
-          <button
-            onClick={next}
-            className="rounded-full border border-white/10 bg-[#16161a]/60 px-4 py-2 text-xs font-semibold text-[#f1f1f3] hover:border-[#7c3aed]/60 hover:text-[#a78bfa] transition glass"
-          >
-            Próxima →
-          </button>
+          {/* mobile: prev/next compactos */}
+          <div className="flex items-center gap-1.5 md:hidden">
+            <button
+              onClick={prev}
+              aria-label="Anterior"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-[#16161a]/60 text-xs text-[#f1f1f3]"
+            >
+              ←
+            </button>
+            <button
+              onClick={next}
+              aria-label="Próxima"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-[#16161a]/60 text-xs text-[#f1f1f3]"
+            >
+              →
+            </button>
+          </div>
         </div>
       </header>
 

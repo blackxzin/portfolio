@@ -449,19 +449,44 @@ function SectionBackdrop({ active }: { active: number }) {
   const conf = SECTION_EMBEDS[id];
   if (!conf) return null;
 
-  // blur/capa a CADA troca de seção (o iframe recarrega o sketchfab sempre,
-  // então o placeholder vem todo vez) — 4s cobre até modelos grandes
+  // capa a cada troca; tempo de cobertura aprende com o uso: 1ª visita mede o
+// render real e salva em localStorage — voltar à seção usa o tempo medido
+// (cache quente ≈ rápido), em vez de segurar 4s fixos.
+const COVER_KEY = "lg-cover-times-v1";
+
+function readCoverTimes(): Record<string, number> {
+  try {
+    return JSON.parse(localStorage.getItem(COVER_KEY) || "{}") as Record<string, number>;
+  } catch {
+    return {};
+  }
+}
+
+function SectionBackdrop({ active }: { active: number }) {
+  const id = sectionConfigs[active].id;
+  const conf = SECTION_EMBEDS[id];
+  if (!conf) return null;
+
+  const onLoadDelayMs = 2000;
+
   const readyRef = useRef<Record<string, boolean>>({});
   const ready = readyRef.current[id] ?? false;
   const [tick, setTick] = useState(0); // força re-render pós-load
+  const startRef = useRef(0);
 
   useEffect(() => {
     readyRef.current[id] = false; // nova seção → esconder o loading de novo
     setTick((t) => t + 1);
+    startRef.current = performance.now();
+
+    // cobertura: tempo medido da 1ª vez (cache quente) ou 4s (cache frio)
+    const times = readCoverTimes();
+    const coverMs = times[id] ?? 4000;
+
     const timer = setTimeout(() => {
       readyRef.current[id] = true;
       setTick((t) => t + 1);
-    }, 4000);
+    }, coverMs);
     return () => clearTimeout(timer);
   }, [id]);
 
@@ -482,10 +507,21 @@ function SectionBackdrop({ active }: { active: number }) {
         src={conf.url}
         onLoad={() => {
           // player pronto ≠ modelo renderizado; espera mais antes de revelar
+          // (e mede o tempo real p/ próxima visita — cache quente)
           setTimeout(() => {
             readyRef.current[id] = true;
             setTick((t) => t + 1);
-          }, 2000);
+            const taken = performance.now() - startRef.current;
+            const times = readCoverTimes();
+            if (!times[id] || taken < times[id]) {
+              times[id] = Math.min(Math.round(taken) + 800, 4000);
+              try {
+                localStorage.setItem(COVER_KEY, JSON.stringify(times));
+              } catch {
+                /* storage indisponível: sem aprendizado */
+              }
+            }
+          }, onLoadDelayMs);
         }}
         className="pointer-events-none absolute left-0 w-full"
         style={{

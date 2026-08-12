@@ -92,10 +92,8 @@ export default function PortfolioPage() {
       <div
         className="relative w-screen h-screen overflow-hidden bg-[#0a0a0b] text-[#f1f1f3] font-sans select-none"
       >
-        {/* pré-carrega todos os fundos 3D atrás da intro (1x, sem WebGL visível aqui) */}
-        <div className="pointer-events-none absolute inset-0 opacity-0">
-          <SectionBackdrop active={0} primeAll onReady={() => setLoaded((l) => l + 1)} />
-        </div>
+        {/* pré-carrega os fundos 3D um por vez — barra de progresso n/5 */}
+        <IntroPreloader onProgress={setLoaded} />
         <div className="absolute inset-0">
           <IntroPoster />
         </div>
@@ -421,6 +419,31 @@ const SECTION_EMBEDS: Record<string, { url: string; topPct: number; heightPct: n
   },
 };
 
+// pré-carrega os fundos 3D UM POR VEZ (sequencial) atrás da intro:
+// pico de 1 WebGL extra — os prontos desmontam (ficam no cache do navegador,
+// reabrir é rápido sem baixar de novo). Barra de progresso n/5.
+function IntroPreloader({ onProgress }: { onProgress: (n: number) => void }) {
+  const [ready, setReady] = useState<string[]>([]);
+  const pending = Object.keys(SECTION_EMBEDS).filter((id) => !ready.includes(id));
+  const current = pending[0];
+
+  useEffect(() => {
+    onProgress(ready.length);
+  }, [ready, onProgress]);
+
+  if (!current) return null; // tudo pronto — desmonta
+  return (
+    <iframe
+      src={SECTION_EMBEDS[current].url}
+      className="pointer-events-none absolute h-px w-px opacity-0" // 1px: render~zero
+      onLoad={() => setReady((r) => [...r, current])}
+      allow="autoplay; fullscreen; xr-spatial-tracking"
+      allowFullScreen
+      title={`Pré-carga ${current}`}
+    />
+  );
+}
+
 // fundo da intro: modelo Tentacle (sketchfab, museudocomputador) girando atrás do nome
 const INTRO_EMBED =
   "https://sketchfab.com/models/3f288cc3ace24294b628fdd0381ffab3/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_infos=0&ui_stop=0&ui_inspector=0&ui_hint=0&ui_help=0&ui_settings=0&ui_vr=0&ui_annotations=0&ui_theme=dark&dnt=1";
@@ -441,41 +464,22 @@ function IntroPoster() {
 
 // fundo por seção: só o ativo e o pré-baixado têm src; os demais ficam "vazios"
 // (sem WebGL rodando) e recebem src quando chegam. Um WebGL vivo por vez = sem lag.
-// Com primeAll (durante a intro) TODOS ganham src — carregam atrás da intro.
-function SectionBackdrop({
-  active,
-  primeAll = false,
-  onReady,
-}: {
-  active: number;
-  primeAll?: boolean;
-  onReady?: () => void;
-}) {
+function SectionBackdrop({ active }: { active: number }) {
   const id = sectionConfigs[active].id;
-  const [primed, setPrimed] = useState<Set<string>>(
-    () => new Set(primeAll ? Object.keys(SECTION_EMBEDS) : [id])
-  );
+  const [primed, setPrimed] = useState<Set<string>>(() => new Set([id]));
 
   useEffect(() => {
-    if (primeAll) {
-      setPrimed(new Set(Object.keys(SECTION_EMBEDS)));
-      return;
-    }
     const next = new Set(primed);
     next.add(id); // atual sempre com src
     // pré-baixa o vizinho (próximo na rota do slide)
     const idx = sectionConfigs.findIndex((s) => s.id === id);
     next.add(sectionConfigs[(idx + 1) % sectionConfigs.length].id);
     setPrimed(next);
-  }, [id, primeAll]);
-
-  const entries = Object.entries(SECTION_EMBEDS);
-  const total = entries.length;
-  const ready = useMemo(() => total, [total]);
+  }, [id]);
 
   return (
     <>
-      {entries.map(([secId, conf]) => {
+      {Object.entries(SECTION_EMBEDS).map(([secId, conf]) => {
         const on = secId === id;
         const hasSrc = primed.has(secId);
         return (
@@ -495,7 +499,6 @@ function SectionBackdrop({
                     transparent=1 deixa o fundo da página aparecer nas bordas */}
                 <iframe
                   src={conf.url}
-                  onLoad={() => onReady?.()}
                   className="pointer-events-none absolute left-0 w-full"
                   style={{
                     top: `${conf.topPct}%`,

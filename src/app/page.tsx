@@ -419,32 +419,44 @@ function IntroPoster() {
 }
 
 // fundo por seção: embed montado apenas na seção ativa (troca via state)
+const hideStyle = { visibility: "hidden" as const };
+
 function SectionBackdrop({ active }: { active: number }) {
   const id = sectionConfigs[active].id;
-  const conf = SECTION_EMBEDS[id];
-  if (!conf) return null;
   return (
-    <div className="absolute inset-0 overflow-hidden">
-      {/* tamanho > 100% corta a barra de controles do sketchfab pra fora da tela;
-          transparent=1 deixa o fundo da página aparecer nas bordas */}
-      <iframe
-        key={id}
-        src={conf.url}
-        className="pointer-events-none absolute left-0 w-full"
-        style={{
-          top: `${conf.topPct}%`,
-          height: `${conf.heightPct}%`,
-          opacity: conf.dim ?? 0.6,
-        }}
-        allow="autoplay; fullscreen; xr-spatial-tracking"
-        allowFullScreen
-        title={`Fundo ${id}`}
-      />
-      {/* escurece mais quando a seção pede (destaque pros textos) */}
-      {conf.dim ? (
-        <div className="pointer-events-none absolute inset-0" style={{ background: "rgba(10,10,11,0.35)" }} />
-      ) : null}
-    </div>
+    <>
+      {/* todos os embeds ficam montados (carregam 1x); alterna por opacidade —
+          voltar pra uma seção é instantâneo, nenhuma recarga de sketchfab */}
+      {Object.entries(SECTION_EMBEDS).map(([secId, conf]) => (
+        <div
+          key={secId}
+          className={`absolute inset-0 overflow-hidden transition-opacity duration-500 ${
+            secId === id ? "opacity-100" : "opacity-0"
+          }`}
+          style={secId === id ? undefined : hideStyle}
+        >
+          {/* tamanho > 100% corta a barra de controles do sketchfab pra fora da tela;
+              transparent=1 deixa o fundo da página aparecer nas bordas */}
+          <iframe
+            key={secId}
+            src={conf.url}
+            className="pointer-events-none absolute left-0 w-full"
+            style={{
+              top: `${conf.topPct}%`,
+              height: `${conf.heightPct}%`,
+              opacity: conf.dim ?? 0.6,
+            }}
+            allow="autoplay; fullscreen; xr-spatial-tracking"
+            allowFullScreen
+            title={`Fundo ${secId}`}
+          />
+          {/* escurece mais quando a seção pede (destaque pros textos) */}
+          {conf.dim ? (
+            <div className="pointer-events-none absolute inset-0" style={{ background: "rgba(10,10,11,0.35)" }} />
+          ) : null}
+        </div>
+      ))}
+    </>
   );
 }
 

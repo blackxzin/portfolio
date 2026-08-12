@@ -60,9 +60,6 @@ export default function PortfolioPage() {
   const [direction, setDirection] = useState(1);
   const [menuOpen, setMenuOpen] = useState(false);
   const [introDone, setIntroDone] = useState(false);
-  const [loaded, setLoaded] = useState(0);
-
-  const totalEmbeds = Object.keys(SECTION_EMBEDS).length;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -92,8 +89,8 @@ export default function PortfolioPage() {
       <div
         className="relative w-screen h-screen overflow-hidden bg-[#0a0a0b] text-[#f1f1f3] font-sans select-none"
       >
-        {/* pré-carrega os fundos 3D um por vez — barra de progresso n/5 */}
-        <IntroPreloader onProgress={setLoaded} />
+        {/* pré-aquece a conexão com o sketchfab (sem baixar nada pesado) */}
+        <IntroPreloader />
         <div className="absolute inset-0">
           <IntroPoster />
         </div>
@@ -137,15 +134,10 @@ export default function PortfolioPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 1.2 }}
-            className="pointer-events-none flex flex-col items-center gap-1.5 text-[11px] text-[#5b5c68]"
+            className="pointer-events-none flex items-center gap-1.5 text-[11px] text-[#5b5c68]"
           >
-            <div className="h-0.5 w-36 overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full bg-[#7c3aed] transition-all duration-300"
-                style={{ width: `${(loaded / totalEmbeds) * 100}%` }}
-              />
-            </div>
-            <span>Preparando ambientes 3D · {loaded}/{totalEmbeds}</span>
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#a78bfa]" />
+            Ambientes 3D carregam ao navegar
           </motion.div>
         </div>
         <p className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[11px] text-[#5b5c68]">
@@ -419,28 +411,15 @@ const SECTION_EMBEDS: Record<string, { url: string; topPct: number; heightPct: n
   },
 };
 
-// pré-carrega os fundos 3D na intro (todos montados em 1×1px, modelo em cache) —
-// ao entrar, o SectionBackdrop reaproveita os MESMOS iframes: troca = resize+fade,
-// nunca recarrega. Barra de progresso n/5.
-function IntroPreloader({ onProgress }: { onProgress: (n: number) => void }) {
-  const [ready, setReady] = useState(0);
+// pré-aquece a conexão com o sketchfab (TLS+HTTP) durante a intro — sem WebGL,
+// só deixa o 1º carregamento mais rápido
+function IntroPreloader() {
   return (
-    <>
-      {Object.entries(SECTION_EMBEDS).map(([secId, conf]) => (
-        <iframe
-          key={secId}
-          src={conf.url}
-          className="pointer-events-none fixed left-0 top-0 h-px w-px opacity-0"
-          onLoad={() => {
-            setReady((r) => r + 1);
-            onProgress(ready + 1);
-          }}
-          allow="autoplay; fullscreen; xr-spatial-tracking"
-          allowFullScreen
-          title={`Pré-carga ${secId}`}
-        />
-      ))}
-    </>
+    <link
+      rel="preconnect"
+      href="https://sketchfab.com"
+      crossOrigin="anonymous"
+    />
   );
 }
 
@@ -462,64 +441,44 @@ function IntroPoster() {
   );
 }
 
-// fundo por seção: o ativo e o PRÓXIMO (rota do slide) têm src; o resto não
-// monta iframe. Com o cache quente (pré-carga da intro) o modelo re-abre quase
-// instantâneo — 1-2 WebGL vivos = sem lag, sem recarga pesada.
+// fundo por seção: UM iframe só, reutilizado — o src troca para a seção ativa.
+// Máximo 1 WebGL vivo por vez (sem iframes escondidos rodando) = zero lag.
+// 1ª visita à seção carrega o modelo (cache quente da intro); voltar = fade.
 function SectionBackdrop({ active }: { active: number }) {
   const id = sectionConfigs[active].id;
-  const [primed, setPrimed] = useState<Set<string>>(() => new Set([id]));
+  const conf = SECTION_EMBEDS[id];
+  if (!conf) return null;
 
+  const [fading, setFading] = useState(true);
   useEffect(() => {
-    const next = new Set(primed);
-    next.add(id); // atual sempre com src
-    // pré-monta o vizinho (próximo na rota do slide)
-    const idx = sectionConfigs.findIndex((s) => s.id === id);
-    next.add(sectionConfigs[(idx + 1) % sectionConfigs.length].id);
-    setPrimed(next);
+    setFading(false); // fade-in após montar
   }, [id]);
 
   return (
-    <>
-      {Object.entries(SECTION_EMBEDS).map(([secId, conf]) => {
-        const on = secId === id;
-        const hasSrc = primed.has(secId);
-        return (
-          <div
-            key={secId}
-            className="absolute inset-0 overflow-hidden"
-            aria-hidden={!on}
-            style={{
-              opacity: on ? 1 : 0,
-              transition: "opacity .45s ease",
-              pointerEvents: "none",
-            }}
-          >
-            {hasSrc ? (
-              <>
-                {/* tamanho > 100% corta a barra de controles do sketchfab pra fora da tela;
-                    transparent=1 deixa o fundo da página aparecer nas bordas */}
-                <iframe
-                  src={conf.url}
-                  className="pointer-events-none absolute left-0 w-full"
-                  style={{
-                    top: `${conf.topPct}%`,
-                    height: `${conf.heightPct}%`,
-                    opacity: conf.dim ?? 0.6,
-                  }}
-                  allow="autoplay; fullscreen; xr-spatial-tracking"
-                  allowFullScreen
-                  title={`Fundo ${secId}`}
-                />
-                {/* escurece mais quando a seção pede (destaque pros textos) */}
-                {conf.dim ? (
-                  <div className="pointer-events-none absolute inset-0" style={{ background: "rgba(10,10,11,0.35)" }} />
-                ) : null}
-              </>
-            ) : null}
-          </div>
-        );
-      })}
-    </>
+    <div
+      className="absolute inset-0 overflow-hidden"
+      style={{ opacity: fading ? 0 : 1, transition: "opacity .6s ease" }}
+    >
+      {/* tamanho > 100% corta a barra de controles do sketchfab pra fora da tela;
+          transparent=1 deixa o fundo da página aparecer nas bordas */}
+      <iframe
+        key={id} // troca o src junto com a transição
+        src={conf.url}
+        className="pointer-events-none absolute left-0 w-full"
+        style={{
+          top: `${conf.topPct}%`,
+          height: `${conf.heightPct}%`,
+          opacity: conf.dim ?? 0.6,
+        }}
+        allow="autoplay; fullscreen; xr-spatial-tracking"
+        allowFullScreen
+        title={`Fundo ${id}`}
+      />
+      {/* escurece mais quando a seção pede (destaque pros textos) */}
+      {conf.dim ? (
+        <div className="pointer-events-none absolute inset-0" style={{ background: "rgba(10,10,11,0.35)" }} />
+      ) : null}
+    </div>
   );
 }
 

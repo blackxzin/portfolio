@@ -449,23 +449,21 @@ function SectionBackdrop({ active }: { active: number }) {
   const conf = SECTION_EMBEDS[id];
   if (!conf) return null;
 
-  // blurred = seções que já mostraram o modelo 3D uma vez; não re-borram ao voltar
-  const blurredRef = useRef<Set<string>>(null as unknown as Set<string>);
-  if (!blurredRef.current) blurredRef.current = new Set();
-
-  const ready = blurredRef.current.has(id);
+  // blur/capa a CADA troca de seção (o iframe recarrega o sketchfab sempre,
+  // então o placeholder vem todo vez) — 4s cobre até modelos grandes
+  const readyRef = useRef<Record<string, boolean>>({});
+  const ready = readyRef.current[id] ?? false;
   const [tick, setTick] = useState(0); // força re-render pós-load
 
-  // capa mínima mesmo com cache quente (placeholder do sketchfab vem igual);
-  // modelos grandes (projetos/contato) precisam de mais — 2.6s cobre o normal
   useEffect(() => {
-    if (ready) return;
+    readyRef.current[id] = false; // nova seção → esconder o loading de novo
+    setTick((t) => t + 1);
     const timer = setTimeout(() => {
-      blurredRef.current.add(id);
+      readyRef.current[id] = true;
       setTick((t) => t + 1);
     }, 4000);
     return () => clearTimeout(timer);
-  }, [id, ready]);
+  }, [id]);
 
   const [fading, setFading] = useState(true);
   useEffect(() => {
@@ -485,10 +483,8 @@ function SectionBackdrop({ active }: { active: number }) {
         onLoad={() => {
           // player pronto ≠ modelo renderizado; espera mais antes de revelar
           setTimeout(() => {
-            if (!blurredRef.current.has(id)) {
-              blurredRef.current.add(id);
-              setTick((t) => t + 1);
-            }
+            readyRef.current[id] = true;
+            setTick((t) => t + 1);
           }, 2000);
         }}
         className="pointer-events-none absolute left-0 w-full"

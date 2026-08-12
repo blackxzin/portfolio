@@ -463,7 +463,7 @@ function SectionBackdrop({ active }: { active: number }) {
     const timer = setTimeout(() => {
       blurredRef.current.add(id);
       setTick((t) => t + 1);
-    }, 2600);
+    }, 4000);
     return () => clearTimeout(timer);
   }, [id, ready]);
 
@@ -489,7 +489,7 @@ function SectionBackdrop({ active }: { active: number }) {
               blurredRef.current.add(id);
               setTick((t) => t + 1);
             }
-          }, 1200);
+          }, 2000);
         }}
         className="pointer-events-none absolute left-0 w-full"
         style={{

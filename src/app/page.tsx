@@ -421,41 +421,71 @@ function IntroPoster() {
 // fundo por seção: embed montado apenas na seção ativa (troca via state)
 const hideStyle = { visibility: "hidden" as const };
 
+// heap de visita: seções já vistas ficam montadas (voltar = instantâneo);
+// as não vistas sobem só na 1ª visita e pré-baixam a vizinha em silêncio
+function visitHeap(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  if (!(window as unknown as { __skfHeap?: Set<string> }).__skfHeap) {
+    (window as unknown as { __skfHeap: Set<string> }).__skfHeap = new Set();
+  }
+  return (window as unknown as { __skfHeap: Set<string> }).__skfHeap;
+}
+
 function SectionBackdrop({ active }: { active: number }) {
   const id = sectionConfigs[active].id;
+  const mounted = useState<Set<string>>(() => visitHeap())[0];
+  const [visited, setVisited] = useState<Set<string>>(() => new Set([id]));
+
+  useEffect(() => {
+    const heap = visitHeap();
+    if (!mounted.has(id)) mounted.add(id);
+    visited.add(id);
+    setVisited(new Set(visited));
+    // pré-baixa o vizinho (próximo na rota do slide)
+    const idx = sectionConfigs.findIndex((s) => s.id === id);
+    const nextId = sectionConfigs[(idx + 1) % sectionConfigs.length].id;
+    if (SECTION_EMBEDS[nextId] && !mounted.has(nextId)) mounted.add(nextId);
+  }, [id, mounted, visited]);
+
+  const order = useMemo(() => Object.keys(SECTION_EMBEDS), []);
+
   return (
     <>
-      {/* todos os embeds ficam montados (carregam 1x); alterna por opacidade —
+      {/* embeds já visitados ficam montados (carregam 1x); alterna por opacidade —
           voltar pra uma seção é instantâneo, nenhuma recarga de sketchfab */}
-      {Object.entries(SECTION_EMBEDS).map(([secId, conf]) => (
-        <div
-          key={secId}
-          className={`absolute inset-0 overflow-hidden transition-opacity duration-500 ${
-            secId === id ? "opacity-100" : "opacity-0"
-          }`}
-          style={secId === id ? undefined : hideStyle}
-        >
-          {/* tamanho > 100% corta a barra de controles do sketchfab pra fora da tela;
-              transparent=1 deixa o fundo da página aparecer nas bordas */}
-          <iframe
+      {order.map((secId) => {
+        if (!mounted.has(secId)) return null;
+        const conf = SECTION_EMBEDS[secId];
+        return (
+          <div
             key={secId}
-            src={conf.url}
-            className="pointer-events-none absolute left-0 w-full"
-            style={{
-              top: `${conf.topPct}%`,
-              height: `${conf.heightPct}%`,
-              opacity: conf.dim ?? 0.6,
-            }}
-            allow="autoplay; fullscreen; xr-spatial-tracking"
-            allowFullScreen
-            title={`Fundo ${secId}`}
-          />
-          {/* escurece mais quando a seção pede (destaque pros textos) */}
-          {conf.dim ? (
-            <div className="pointer-events-none absolute inset-0" style={{ background: "rgba(10,10,11,0.35)" }} />
-          ) : null}
-        </div>
-      ))}
+            className={`absolute inset-0 overflow-hidden transition-opacity duration-500 ${
+              secId === id ? "opacity-100" : "opacity-0"
+            }`}
+            style={secId === id ? undefined : hideStyle}
+          >
+            {/* tamanho > 100% corta a barra de controles do sketchfab pra fora da tela;
+                transparent=1 deixa o fundo da página aparecer nas bordas */}
+            <iframe
+              key={secId}
+              src={conf.url}
+              className="pointer-events-none absolute left-0 w-full"
+              style={{
+                top: `${conf.topPct}%`,
+                height: `${conf.heightPct}%`,
+                opacity: conf.dim ?? 0.6,
+              }}
+              allow="autoplay; fullscreen; xr-spatial-tracking"
+              allowFullScreen
+              title={`Fundo ${secId}`}
+            />
+            {/* escurece mais quando a seção pede (destaque pros textos) */}
+            {conf.dim ? (
+              <div className="pointer-events-none absolute inset-0" style={{ background: "rgba(10,10,11,0.35)" }} />
+            ) : null}
+          </div>
+        );
+      })}
     </>
   );
 }

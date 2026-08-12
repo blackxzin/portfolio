@@ -418,45 +418,58 @@ function IntroPoster() {
   );
 }
 
-// fundo por seção: embed montado apenas na seção ativa (troca via state)
+// fundo por seção: só o ativo e o pré-baixado têm src; os demais ficam "vazios"
+// (sem WebGL rodando) e recebem src quando chegam. Um WebGL vivo por vez = sem lag.
 function SectionBackdrop({ active }: { active: number }) {
   const id = sectionConfigs[active].id;
+  const [primed, setPrimed] = useState<Set<string>>(() => new Set([id]));
+
+  useEffect(() => {
+    const next = new Set(primed);
+    next.add(id); // atual sempre com src
+    // pré-baixa o vizinho (próximo na rota do slide)
+    const idx = sectionConfigs.findIndex((s) => s.id === id);
+    next.add(sectionConfigs[(idx + 1) % sectionConfigs.length].id);
+    setPrimed(next);
+  }, [id]);
+
   return (
     <>
-      {/* todos os embeds ficam montados: o modelo baixa 1x e fica pronto.
-          Os inativos ficam em 1×1px (render ~zero, GPU leve) e crescem pra
-          tela cheia ao ativar — instantâneo, sem "carregando modelo 3D" */}
       {Object.entries(SECTION_EMBEDS).map(([secId, conf]) => {
         const on = secId === id;
+        const hasSrc = primed.has(secId);
         return (
           <div
             key={secId}
-            className="absolute left-0 top-0 overflow-hidden"
+            className="absolute inset-0 overflow-hidden"
             aria-hidden={!on}
             style={{
-              width: on ? "100%" : "1px",
-              height: on ? "100%" : "1px",
               opacity: on ? 1 : 0,
-              transition: "width .45s ease, height .45s ease, opacity .45s ease",
+              transition: "opacity .45s ease",
+              pointerEvents: "none",
             }}
           >
-            {/* tamanho > 100% corta a barra de controles do sketchfab pra fora da tela;
-                transparent=1 deixa o fundo da página aparecer nas bordas */}
-            <iframe
-              src={conf.url}
-              className="pointer-events-none absolute left-0 w-full"
-              style={{
-                top: `${conf.topPct}%`,
-                height: `${conf.heightPct}%`,
-                opacity: conf.dim ?? 0.6,
-              }}
-              allow="autoplay; fullscreen; xr-spatial-tracking"
-              allowFullScreen
-              title={`Fundo ${secId}`}
-            />
-            {/* escurece mais quando a seção pede (destaque pros textos) */}
-            {conf.dim ? (
-              <div className="pointer-events-none absolute inset-0" style={{ background: "rgba(10,10,11,0.35)" }} />
+            {hasSrc ? (
+              <>
+                {/* tamanho > 100% corta a barra de controles do sketchfab pra fora da tela;
+                    transparent=1 deixa o fundo da página aparecer nas bordas */}
+                <iframe
+                  src={conf.url}
+                  className="pointer-events-none absolute left-0 w-full"
+                  style={{
+                    top: `${conf.topPct}%`,
+                    height: `${conf.heightPct}%`,
+                    opacity: conf.dim ?? 0.6,
+                  }}
+                  allow="autoplay; fullscreen; xr-spatial-tracking"
+                  allowFullScreen
+                  title={`Fundo ${secId}`}
+                />
+                {/* escurece mais quando a seção pede (destaque pros textos) */}
+                {conf.dim ? (
+                  <div className="pointer-events-none absolute inset-0" style={{ background: "rgba(10,10,11,0.35)" }} />
+                ) : null}
+              </>
             ) : null}
           </div>
         );

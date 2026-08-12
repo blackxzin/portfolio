@@ -60,7 +60,10 @@ export default function PortfolioPage() {
   const [direction, setDirection] = useState(1);
   const [menuOpen, setMenuOpen] = useState(false);
   const [introDone, setIntroDone] = useState(false);
-  
+  const [loaded, setLoaded] = useState(0);
+
+  const totalEmbeds = Object.keys(SECTION_EMBEDS).length;
+
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => setMounted(true), []);
@@ -89,6 +92,10 @@ export default function PortfolioPage() {
       <div
         className="relative w-screen h-screen overflow-hidden bg-[#0a0a0b] text-[#f1f1f3] font-sans select-none"
       >
+        {/* pré-carrega todos os fundos 3D atrás da intro (1x, sem WebGL visível aqui) */}
+        <div className="pointer-events-none absolute inset-0 opacity-0">
+          <SectionBackdrop active={0} primeAll onReady={() => setLoaded((l) => l + 1)} />
+        </div>
         <div className="absolute inset-0">
           <IntroPoster />
         </div>
@@ -128,6 +135,20 @@ export default function PortfolioPage() {
           >
             Entrar no portfólio →
           </motion.button>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 1.2 }}
+            className="pointer-events-none flex flex-col items-center gap-1.5 text-[11px] text-[#5b5c68]"
+          >
+            <div className="h-0.5 w-36 overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-[#7c3aed] transition-all duration-300"
+                style={{ width: `${(loaded / totalEmbeds) * 100}%` }}
+              />
+            </div>
+            <span>Preparando ambientes 3D · {loaded}/{totalEmbeds}</span>
+          </motion.div>
         </div>
         <p className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[11px] text-[#5b5c68]">
           Portfólio · Lucas Gabriel
@@ -420,22 +441,41 @@ function IntroPoster() {
 
 // fundo por seção: só o ativo e o pré-baixado têm src; os demais ficam "vazios"
 // (sem WebGL rodando) e recebem src quando chegam. Um WebGL vivo por vez = sem lag.
-function SectionBackdrop({ active }: { active: number }) {
+// Com primeAll (durante a intro) TODOS ganham src — carregam atrás da intro.
+function SectionBackdrop({
+  active,
+  primeAll = false,
+  onReady,
+}: {
+  active: number;
+  primeAll?: boolean;
+  onReady?: () => void;
+}) {
   const id = sectionConfigs[active].id;
-  const [primed, setPrimed] = useState<Set<string>>(() => new Set([id]));
+  const [primed, setPrimed] = useState<Set<string>>(
+    () => new Set(primeAll ? Object.keys(SECTION_EMBEDS) : [id])
+  );
 
   useEffect(() => {
+    if (primeAll) {
+      setPrimed(new Set(Object.keys(SECTION_EMBEDS)));
+      return;
+    }
     const next = new Set(primed);
     next.add(id); // atual sempre com src
     // pré-baixa o vizinho (próximo na rota do slide)
     const idx = sectionConfigs.findIndex((s) => s.id === id);
     next.add(sectionConfigs[(idx + 1) % sectionConfigs.length].id);
     setPrimed(next);
-  }, [id]);
+  }, [id, primeAll]);
+
+  const entries = Object.entries(SECTION_EMBEDS);
+  const total = entries.length;
+  const ready = useMemo(() => total, [total]);
 
   return (
     <>
-      {Object.entries(SECTION_EMBEDS).map(([secId, conf]) => {
+      {entries.map(([secId, conf]) => {
         const on = secId === id;
         const hasSrc = primed.has(secId);
         return (
@@ -455,6 +495,7 @@ function SectionBackdrop({ active }: { active: number }) {
                     transparent=1 deixa o fundo da página aparecer nas bordas */}
                 <iframe
                   src={conf.url}
+                  onLoad={() => onReady?.()}
                   className="pointer-events-none absolute left-0 w-full"
                   style={{
                     top: `${conf.topPct}%`,

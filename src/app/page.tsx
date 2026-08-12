@@ -363,8 +363,8 @@ const SECTION_EMBEDS: Record<string, { url: string; topPct: number; heightPct: n
   // barra de animação, botão parar/fullscreen — só o 3D girando
   // heightPct/topPct: iframe maior que a tela corta a barra do sketchfab por baixo
   about: {
-    // Low poly Retro computer — igual ao hologram: centralizado, escurecido
-    url: "https://sketchfab.com/models/0393d9b0d3b8499e927a50b31eb38ba9/embed?autostart=1&preload=1&transparent=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_vr=0&ui_annotations=0&ui_stop=0&ui_fadeout=1&ui_theme=dark&dnt=1",
+    // Low poly Retro computer — anotações ciclam sozinhas (annotation_cycle=3), UI limpa
+    url: "https://sketchfab.com/models/0393d9b0d3b8499e927a50b31eb38ba9/embed?autostart=1&annotations_visible=0&preload=1&annotation=1&annotation_cycle=3&transparent=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_vr=0&ui_stop=0&ui_fadeout=1&ui_theme=dark&dnt=1",
     topPct: -14,
     heightPct: 128,
   },

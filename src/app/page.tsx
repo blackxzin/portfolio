@@ -433,19 +433,29 @@ function visitHeap(): Set<string> {
 
 function SectionBackdrop({ active }: { active: number }) {
   const id = sectionConfigs[active].id;
-  const mounted = useState<Set<string>>(() => visitHeap())[0];
-  const [visited, setVisited] = useState<Set<string>>(() => new Set([id]));
+  const mountedRef = useRef<Set<string>>(null as unknown as Set<string>);
+  if (!mountedRef.current) mountedRef.current = visitHeap();
+
+  // estado derivado: re-render quando monta algo novo
+  const [mounted, setMounted] = useState<Set<string>>(() => mountedRef.current);
 
   useEffect(() => {
-    const heap = visitHeap();
-    if (!mounted.has(id)) mounted.add(id);
-    visited.add(id);
-    setVisited(new Set(visited));
+    const heap = mountedRef.current;
+    if (!heap.has(id)) {
+      heap.add(id);
+      setMounted(heap);
+    } else {
+      // id já estava no heap: força re-render mesmo assim (voltar à seção)
+      setMounted(heap);
+    }
     // pré-baixa o vizinho (próximo na rota do slide)
     const idx = sectionConfigs.findIndex((s) => s.id === id);
     const nextId = sectionConfigs[(idx + 1) % sectionConfigs.length].id;
-    if (SECTION_EMBEDS[nextId] && !mounted.has(nextId)) mounted.add(nextId);
-  }, [id, mounted, visited]);
+    if (SECTION_EMBEDS[nextId] && !heap.has(nextId)) {
+      heap.add(nextId);
+      setMounted(heap);
+    }
+  }, [id]);
 
   const order = useMemo(() => Object.keys(SECTION_EMBEDS), []);
 

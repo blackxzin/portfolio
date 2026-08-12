@@ -272,25 +272,7 @@ export default function PortfolioPage() {
         )}
       </AnimatePresence>
 
-      <div className="absolute bottom-20 left-4 z-50 flex flex-col items-center gap-2 md:bottom-5 md:left-8 md:flex-row md:gap-3">
-          {[
-            { href: "https://github.com/blackxzin", icon: "⌨" },
-            { href: "https://www.linkedin.com/in/lucas-gabriel-787b19334/", icon: "💼" },
-            { href: "mailto:lucasgabriel4331@gmail.com", icon: "✉" },
-          ].map((s) => (
-            <a
-              key={s.href}
-              href={s.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#16161a]/60 text-sm text-[#a6a7b3] transition hover:border-[#7c3aed]/60 hover:text-[#a78bfa]"
-              aria-label={s.icon}
-            >
-              {s.icon}
-            </a>
-          ))}
-        </div>
-
+      
         <div className="absolute bottom-5 left-0 right-0 z-50 flex items-center justify-center gap-2 px-6">
         {sectionConfigs.map((item, idx) => (
           <button

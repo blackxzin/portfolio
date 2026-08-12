@@ -449,6 +449,12 @@ function SectionBackdrop({ active }: { active: number }) {
   const conf = SECTION_EMBEDS[id];
   if (!conf) return null;
 
+  // blur-suave enquanto o modelo carrega — sem "Carregando modelo 3D" na cara
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    setReady(false); // nova seção → volta a borrar até o embed carregar
+  }, [id]);
+
   const [fading, setFading] = useState(true);
   useEffect(() => {
     setFading(false); // fade-in após montar
@@ -464,6 +470,7 @@ function SectionBackdrop({ active }: { active: number }) {
       <iframe
         key={id} // troca o src junto com a transição
         src={conf.url}
+        onLoad={() => setReady(true)}
         className="pointer-events-none absolute left-0 w-full"
         style={{
           top: `${conf.topPct}%`,
@@ -473,6 +480,16 @@ function SectionBackdrop({ active }: { active: number }) {
         allow="autoplay; fullscreen; xr-spatial-tracking"
         allowFullScreen
         title={`Fundo ${id}`}
+      />
+      {/* enquanto carrega: blur por cima esconde o placeholder do sketchfab */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backdropFilter: ready ? "none" : "blur(14px)",
+          WebkitBackdropFilter: ready ? "none" : "blur(14px)",
+          background: ready ? "transparent" : "rgba(10,10,11,0.55)",
+          transition: "backdrop-filter .5s ease, background .5s ease",
+        }}
       />
       {/* escurece mais quando a seção pede (destaque pros textos) */}
       {conf.dim ? (

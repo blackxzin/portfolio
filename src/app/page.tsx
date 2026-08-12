@@ -456,13 +456,14 @@ function SectionBackdrop({ active }: { active: number }) {
   const ready = blurredRef.current.has(id);
   const [tick, setTick] = useState(0); // força re-render pós-load
 
-  // blur mínimo mesmo com cache quente (placeholder do sketchfab vem igual)
+  // capa mínima mesmo com cache quente (placeholder do sketchfab vem igual);
+  // modelos grandes (projetos/contato) precisam de mais — 2.6s cobre o normal
   useEffect(() => {
     if (ready) return;
     const timer = setTimeout(() => {
       blurredRef.current.add(id);
       setTick((t) => t + 1);
-    }, 1600);
+    }, 2600);
     return () => clearTimeout(timer);
   }, [id, ready]);
 
@@ -482,13 +483,13 @@ function SectionBackdrop({ active }: { active: number }) {
         key={id} // troca o src junto com a transição
         src={conf.url}
         onLoad={() => {
-          // deixa o modelo começar a renderizar antes de tirar o blur
+          // player pronto ≠ modelo renderizado; espera mais antes de revelar
           setTimeout(() => {
             if (!blurredRef.current.has(id)) {
               blurredRef.current.add(id);
               setTick((t) => t + 1);
             }
-          }, 900);
+          }, 1200);
         }}
         className="pointer-events-none absolute left-0 w-full"
         style={{

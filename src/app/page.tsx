@@ -449,16 +449,22 @@ function SectionBackdrop({ active }: { active: number }) {
   const conf = SECTION_EMBEDS[id];
   if (!conf) return null;
 
-  // blur-suave enquanto o modelo carrega — sem "Carregando modelo 3D" na cara.
-  // onLoad do iframe ≠ modelo renderizado (o player monta antes): mantém o blur
-  // pelo menos MIN_BLUR_MS mesmo com cache quente, e estende se o load atrasar.
-  const MIN_BLUR_MS = 1600;
-  const [ready, setReady] = useState(false);
+  // blurred = seções que já mostraram o modelo 3D uma vez; não re-borram ao voltar
+  const blurredRef = useRef<Set<string>>(null as unknown as Set<string>);
+  if (!blurredRef.current) blurredRef.current = new Set();
+
+  const ready = blurredRef.current.has(id);
+  const [tick, setTick] = useState(0); // força re-render pós-load
+
+  // blur mínimo mesmo com cache quente (placeholder do sketchfab vem igual)
   useEffect(() => {
-    setReady(false);
-    const timer = setTimeout(() => setReady(true), MIN_BLUR_MS);
+    if (ready) return;
+    const timer = setTimeout(() => {
+      blurredRef.current.add(id);
+      setTick((t) => t + 1);
+    }, 1600);
     return () => clearTimeout(timer);
-  }, [id]);
+  }, [id, ready]);
 
   const [fading, setFading] = useState(true);
   useEffect(() => {
@@ -476,8 +482,13 @@ function SectionBackdrop({ active }: { active: number }) {
         key={id} // troca o src junto com a transição
         src={conf.url}
         onLoad={() => {
-          // espera o modelo renderizar (player monta antes); timeout de segurança
-          setTimeout(() => setReady(true), 900);
+          // deixa o modelo começar a renderizar antes de tirar o blur
+          setTimeout(() => {
+            if (!blurredRef.current.has(id)) {
+              blurredRef.current.add(id);
+              setTick((t) => t + 1);
+            }
+          }, 900);
         }}
         className="pointer-events-none absolute left-0 w-full"
         style={{
@@ -499,6 +510,8 @@ function SectionBackdrop({ active }: { active: number }) {
           transition: "backdrop-filter .5s ease, background .5s ease",
         }}
       />
+      {/* re-render gate: garante que o blur some quando ready vira true */}
+      <span className="sr-only">{tick}</span>
       {/* escurece mais quando a seção pede (destaque pros textos) */}
       {conf.dim ? (
         <div className="pointer-events-none absolute inset-0" style={{ background: "rgba(10,10,11,0.35)" }} />

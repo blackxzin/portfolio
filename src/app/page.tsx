@@ -172,7 +172,7 @@ export default function PortfolioPage() {
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.2}
           onDragEnd={handleDragEnd}
-          className={"absolute inset-0 flex items-start justify-center px-6 pt-28 pb-10 md:px-12 md:pt-32" + (active === 1 || active === 2 ? " pointer-events-none" : "")}
+          className={"absolute inset-0 flex items-center justify-center px-6 pt-28 pb-10 md:px-12 md:pt-32 overflow-y-auto" + (active === 1 || active === 2 ? " pointer-events-none" : "")}
         >
           <motion.div
             initial={{ scale: 1 }}

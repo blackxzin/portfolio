@@ -419,65 +419,30 @@ function IntroPoster() {
 }
 
 // fundo por seção: embed montado apenas na seção ativa (troca via state)
-const hideStyle = { visibility: "hidden" as const };
-
-// heap de visita: seções já vistas ficam montadas (voltar = instantâneo);
-// as não vistas sobem só na 1ª visita e pré-baixam a vizinha em silêncio
-function visitHeap(): Set<string> {
-  if (typeof window === "undefined") return new Set();
-  if (!(window as unknown as { __skfHeap?: Set<string> }).__skfHeap) {
-    (window as unknown as { __skfHeap: Set<string> }).__skfHeap = new Set();
-  }
-  return (window as unknown as { __skfHeap: Set<string> }).__skfHeap;
-}
-
 function SectionBackdrop({ active }: { active: number }) {
   const id = sectionConfigs[active].id;
-  const mountedRef = useRef<Set<string>>(null as unknown as Set<string>);
-  if (!mountedRef.current) mountedRef.current = visitHeap();
-
-  // estado derivado: re-render quando monta algo novo
-  const [mounted, setMounted] = useState<Set<string>>(() => mountedRef.current);
-
-  useEffect(() => {
-    const heap = mountedRef.current;
-    if (!heap.has(id)) {
-      heap.add(id);
-      setMounted(heap);
-    } else {
-      // id já estava no heap: força re-render mesmo assim (voltar à seção)
-      setMounted(heap);
-    }
-    // pré-baixa o vizinho (próximo na rota do slide)
-    const idx = sectionConfigs.findIndex((s) => s.id === id);
-    const nextId = sectionConfigs[(idx + 1) % sectionConfigs.length].id;
-    if (SECTION_EMBEDS[nextId] && !heap.has(nextId)) {
-      heap.add(nextId);
-      setMounted(heap);
-    }
-  }, [id]);
-
-  const order = useMemo(() => Object.keys(SECTION_EMBEDS), []);
-
   return (
     <>
-      {/* embeds já visitados ficam montados (carregam 1x); alterna por opacidade —
-          voltar pra uma seção é instantâneo, nenhuma recarga de sketchfab */}
-      {order.map((secId) => {
-        if (!mounted.has(secId)) return null;
-        const conf = SECTION_EMBEDS[secId];
+      {/* todos os embeds ficam montados: o modelo baixa 1x e fica pronto.
+          Os inativos ficam em 1×1px (render ~zero, GPU leve) e crescem pra
+          tela cheia ao ativar — instantâneo, sem "carregando modelo 3D" */}
+      {Object.entries(SECTION_EMBEDS).map(([secId, conf]) => {
+        const on = secId === id;
         return (
           <div
             key={secId}
-            className={`absolute inset-0 overflow-hidden transition-opacity duration-500 ${
-              secId === id ? "opacity-100" : "opacity-0"
-            }`}
-            style={secId === id ? undefined : hideStyle}
+            className="absolute left-0 top-0 overflow-hidden"
+            aria-hidden={!on}
+            style={{
+              width: on ? "100%" : "1px",
+              height: on ? "100%" : "1px",
+              opacity: on ? 1 : 0,
+              transition: "width .45s ease, height .45s ease, opacity .45s ease",
+            }}
           >
             {/* tamanho > 100% corta a barra de controles do sketchfab pra fora da tela;
                 transparent=1 deixa o fundo da página aparecer nas bordas */}
             <iframe
-              key={secId}
               src={conf.url}
               className="pointer-events-none absolute left-0 w-full"
               style={{

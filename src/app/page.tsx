@@ -500,17 +500,19 @@ function SectionBackdrop({ active }: { active: number }) {
         allowFullScreen
         title={`Fundo ${id}`}
       />
-      {/* enquanto carrega: blur por cima esconde o placeholder do sketchfab */}
+      {/* capa OPACA enquanto carrega: blur não cobre iframe cross-origin,
+          então esconde o "Carregando modelo 3D" com fundo sólido + fade out */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
-          backdropFilter: ready ? "none" : "blur(14px)",
-          WebkitBackdropFilter: ready ? "none" : "blur(14px)",
-          background: ready ? "transparent" : "rgba(10,10,11,0.55)",
-          transition: "backdrop-filter .5s ease, background .5s ease",
+          opacity: ready ? 0 : 1,
+          background: "#0a0a0b",
+          backdropFilter: ready ? "none" : "blur(18px)",
+          WebkitBackdropFilter: ready ? "none" : "blur(18px)",
+          transition: "opacity .6s ease",
         }}
       />
-      {/* re-render gate: garante que o blur some quando ready vira true */}
+      {/* re-render gate: garante que a capa some quando ready vira true */}
       <span className="sr-only">{tick}</span>
       {/* escurece mais quando a seção pede (destaque pros textos) */}
       {conf.dim ? (

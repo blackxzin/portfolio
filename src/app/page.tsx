@@ -449,10 +449,15 @@ function SectionBackdrop({ active }: { active: number }) {
   const conf = SECTION_EMBEDS[id];
   if (!conf) return null;
 
-  // blur-suave enquanto o modelo carrega — sem "Carregando modelo 3D" na cara
+  // blur-suave enquanto o modelo carrega — sem "Carregando modelo 3D" na cara.
+  // onLoad do iframe ≠ modelo renderizado (o player monta antes): mantém o blur
+  // pelo menos MIN_BLUR_MS mesmo com cache quente, e estende se o load atrasar.
+  const MIN_BLUR_MS = 1600;
   const [ready, setReady] = useState(false);
   useEffect(() => {
-    setReady(false); // nova seção → volta a borrar até o embed carregar
+    setReady(false);
+    const timer = setTimeout(() => setReady(true), MIN_BLUR_MS);
+    return () => clearTimeout(timer);
   }, [id]);
 
   const [fading, setFading] = useState(true);
@@ -470,7 +475,10 @@ function SectionBackdrop({ active }: { active: number }) {
       <iframe
         key={id} // troca o src junto com a transição
         src={conf.url}
-        onLoad={() => setReady(true)}
+        onLoad={() => {
+          // espera o modelo renderizar (player monta antes); timeout de segurança
+          setTimeout(() => setReady(true), 900);
+        }}
         className="pointer-events-none absolute left-0 w-full"
         style={{
           top: `${conf.topPct}%`,

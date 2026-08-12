@@ -362,6 +362,12 @@ const SECTION_EMBEDS: Record<string, { url: string; topPct: number; heightPct: n
   // ui_* zerados + dnt=1: sem VR, ajuda, inspetor, tela cheia, anotações,
   // barra de animação, botão parar/fullscreen — só o 3D girando
   // heightPct/topPct: iframe maior que a tela corta a barra do sketchfab por baixo
+  journey: {
+    // Rubik's Cube — estilo padrão dos outros
+    url: "https://sketchfab.com/models/7472d2f875fc43bd9ddac4a611cd80ce/embed?autospin=1&autostart=1&preload=1&transparent=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_vr=0&ui_annotations=0&ui_stop=0&ui_fadeout=1&ui_theme=dark&dnt=1",
+    topPct: -14,
+    heightPct: 128,
+  },
   about: {
     // Windows 98 — escurecido pra não roubar atenção dos textos
     url: "https://sketchfab.com/models/5e328170783f46cdac1aa67ee739a1da/embed?autostart=1&preload=1&transparent=1&ui_controls=0&ui_infos=0&ui_help=0&ui_inspector=0&ui_settings=0&ui_vr=0&ui_annotations=0&ui_stop=0&ui_fadeout=1&ui_theme=dark&dnt=1",

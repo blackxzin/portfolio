@@ -441,15 +441,7 @@ function IntroPoster() {
   );
 }
 
-// fundo por seção: UM iframe só, reutilizado — o src troca para a seção ativa.
-// Máximo 1 WebGL vivo por vez (sem iframes escondidos rodando) = zero lag.
-// 1ª visita à seção carrega o modelo (cache quente da intro); voltar = fade.
-function SectionBackdrop({ active }: { active: number }) {
-  const id = sectionConfigs[active].id;
-  const conf = SECTION_EMBEDS[id];
-  if (!conf) return null;
-
-  // capa a cada troca; tempo de cobertura aprende com o uso: 1ª visita mede o
+// capa a cada troca; tempo de cobertura aprende com o uso: 1ª visita mede o
 // render real e salva em localStorage — voltar à seção usa o tempo medido
 // (cache quente ≈ rápido), em vez de segurar 4s fixos.
 const COVER_KEY = "lg-cover-times-v1";
@@ -462,6 +454,9 @@ function readCoverTimes(): Record<string, number> {
   }
 }
 
+// fundo por seção: UM iframe só, reutilizado — o src troca para a seção ativa.
+// Máximo 1 WebGL vivo por vez (sem iframes escondidos rodando) = zero lag.
+// 1ª visita à seção carrega o modelo (cache quente da intro); voltar = fade.
 function SectionBackdrop({ active }: { active: number }) {
   const id = sectionConfigs[active].id;
   const conf = SECTION_EMBEDS[id];

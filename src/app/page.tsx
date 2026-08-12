@@ -419,28 +419,28 @@ const SECTION_EMBEDS: Record<string, { url: string; topPct: number; heightPct: n
   },
 };
 
-// pré-carrega os fundos 3D UM POR VEZ (sequencial) atrás da intro:
-// pico de 1 WebGL extra — os prontos desmontam (ficam no cache do navegador,
-// reabrir é rápido sem baixar de novo). Barra de progresso n/5.
+// pré-carrega os fundos 3D na intro (todos montados em 1×1px, modelo em cache) —
+// ao entrar, o SectionBackdrop reaproveita os MESMOS iframes: troca = resize+fade,
+// nunca recarrega. Barra de progresso n/5.
 function IntroPreloader({ onProgress }: { onProgress: (n: number) => void }) {
-  const [ready, setReady] = useState<string[]>([]);
-  const pending = Object.keys(SECTION_EMBEDS).filter((id) => !ready.includes(id));
-  const current = pending[0];
-
-  useEffect(() => {
-    onProgress(ready.length);
-  }, [ready, onProgress]);
-
-  if (!current) return null; // tudo pronto — desmonta
+  const [ready, setReady] = useState(0);
   return (
-    <iframe
-      src={SECTION_EMBEDS[current].url}
-      className="pointer-events-none absolute h-px w-px opacity-0" // 1px: render~zero
-      onLoad={() => setReady((r) => [...r, current])}
-      allow="autoplay; fullscreen; xr-spatial-tracking"
-      allowFullScreen
-      title={`Pré-carga ${current}`}
-    />
+    <>
+      {Object.entries(SECTION_EMBEDS).map(([secId, conf]) => (
+        <iframe
+          key={secId}
+          src={conf.url}
+          className="pointer-events-none fixed left-0 top-0 h-px w-px opacity-0"
+          onLoad={() => {
+            setReady((r) => r + 1);
+            onProgress(ready + 1);
+          }}
+          allow="autoplay; fullscreen; xr-spatial-tracking"
+          allowFullScreen
+          title={`Pré-carga ${secId}`}
+        />
+      ))}
+    </>
   );
 }
 
@@ -462,8 +462,9 @@ function IntroPoster() {
   );
 }
 
-// fundo por seção: só o ativo e o pré-baixado têm src; os demais ficam "vazios"
-// (sem WebGL rodando) e recebem src quando chegam. Um WebGL vivo por vez = sem lag.
+// fundo por seção: o ativo e o PRÓXIMO (rota do slide) têm src; o resto não
+// monta iframe. Com o cache quente (pré-carga da intro) o modelo re-abre quase
+// instantâneo — 1-2 WebGL vivos = sem lag, sem recarga pesada.
 function SectionBackdrop({ active }: { active: number }) {
   const id = sectionConfigs[active].id;
   const [primed, setPrimed] = useState<Set<string>>(() => new Set([id]));
@@ -471,7 +472,7 @@ function SectionBackdrop({ active }: { active: number }) {
   useEffect(() => {
     const next = new Set(primed);
     next.add(id); // atual sempre com src
-    // pré-baixa o vizinho (próximo na rota do slide)
+    // pré-monta o vizinho (próximo na rota do slide)
     const idx = sectionConfigs.findIndex((s) => s.id === id);
     next.add(sectionConfigs[(idx + 1) % sectionConfigs.length].id);
     setPrimed(next);

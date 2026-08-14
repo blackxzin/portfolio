@@ -1,101 +1,205 @@
 @import "tailwindcss";
+@source "../";
 
-@layer utilities {
-  .glass {
-    position: relative;
-    background: linear-gradient(160deg, rgba(28, 28, 36, 0.72), rgba(16, 16, 22, 0.6));
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    backdrop-filter: blur(18px) saturate(140%);
-    -webkit-backdrop-filter: blur(18px) saturate(140%);
-    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.07);
-    border-radius: 1.25rem;
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-  }
+/* ---------------------------------------------------------------
+   Tokens
+   Direção: editorial técnico. Preto quente, papel off-white,
+   um único sinal (vermelhão). Sem gradiente roxo, sem glass.
+   --------------------------------------------------------------- */
+:root {
+  --ink: #0b0b0a;
+  --ink-raised: #121211;
+  --ink-sunken: #070706;
 
-  /* contorno em gradiente (técnica border-image) — borda tech sem peso visual */
-  .glass::before {
-    content: "";
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(150deg, rgba(167, 139, 250, 0.4), rgba(255, 255, 255, 0.04) 40%, rgba(52, 211, 153, 0.25));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-    opacity: 0.55;
-    transition: opacity 0.25s ease;
-  }
+  --paper: #ececea;
+  --paper-dim: #a3a29d;
+  --paper-faint: #6b6a66;
 
-  .glass:hover::before {
-    opacity: 1;
-  }
+  --line: rgba(236, 236, 234, 0.13);
+  --line-strong: rgba(236, 236, 234, 0.28);
 
-  .glass:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.5), 0 0 24px rgba(124, 58, 237, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    border-color: rgba(167, 139, 250, 0.22);
-  }
+  --signal: #ff4d19;
+  --signal-dim: rgba(255, 77, 25, 0.16);
 
-  .gel {
-    animation: gel 1.2s ease-in-out;
-    transform-origin: center;
-    will-change: transform;
-  }
-}
+  --shell: min(1180px, 100% - 3rem);
+  --rule: 1px;
 
-.project-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(124, 58, 237, 0.45) rgba(255, 255, 255, 0.05);
-}
+  --step-label: 0.6875rem;
+  --step-body: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+  --step-lead: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+  --step-title: clamp(2rem, 1.4rem + 2.4vw, 3.25rem);
+  --step-hero: clamp(2.75rem, 1rem + 8.5vw, 8rem);
 
-.project-scroll::-webkit-scrollbar {
-  width: 8px;
-}
-
-.project-scroll::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 999px;
-}
-
-.project-scroll::-webkit-scrollbar-thumb {
-  background: rgba(124, 58, 237, 0.45);
-  border-radius: 999px;
-}
-
-.project-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(124, 58, 237, 0.7);
-}
-
-@keyframes gel {
-  0%,
-  100% {
-    transform: scale(1, 1);
-  }
-  20% {
-    transform: scale(0.94, 1.06);
-  }
-  40% {
-    transform: scale(1.06, 0.94);
-  }
-  60% {
-    transform: scale(0.97, 1.03);
-  }
-  80% {
-    transform: scale(1.02, 0.98);
-  }
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer base {
-  html, body {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* header fixo não cobre o alvo do link de âncora */
+    scroll-padding-top: 6rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
     margin: 0;
-    padding: 0;
-    width: 100%;
-    min-height: 100%;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    font-size: var(--step-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
     overflow-x: hidden;
-    user-select: none;
-    -webkit-user-select: none;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  ::selection {
+    background: var(--signal);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  h1,
+  h2,
+  h3 {
+    margin: 0;
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Utilitários próprios
+   --------------------------------------------------------------- */
+@layer components {
+  .shell {
+    width: var(--shell);
+    margin-inline: auto;
+  }
+
+  /* Rótulo mono maiúsculo — carrega o tom técnico do layout inteiro */
+  .label {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: var(--step-label);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--paper-faint);
+  }
+
+  .display {
+    font-family: var(--font-display), Georgia, serif;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: -0.02em;
+  }
+
+  /* Régua que separa seções — hairline, nunca card */
+  .rule {
+    border: 0;
+    border-top: var(--rule) solid var(--line);
+    margin: 0;
+  }
+
+  .link-underline {
+    background-image: linear-gradient(var(--signal), var(--signal));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% var(--rule);
+    transition: background-size 0.35s var(--ease), color 0.2s ease;
+  }
+
+  .link-underline:hover,
+  .link-underline:focus-visible {
+    background-size: 100% var(--rule);
+    color: #fff;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Revelação ao rolar — IntersectionObserver aplica [data-inview]
+   --------------------------------------------------------------- */
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+/* escalonamento do reveal — aplicado por classe, sem style inline */
+.d1 { --reveal-delay: 90ms; }
+.d2 { --reveal-delay: 180ms; }
+.d3 { --reveal-delay: 270ms; }
+.d4 { --reveal-delay: 360ms; }
+
+[data-reveal][data-inview="true"] {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+/* Fundo 3D: só ocupa a camada mais baixa, nunca captura ponteiro */
+.backdrop-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  contain: strict;
+}
+
+/* Fallback sem WebGL / mobile / movimento reduzido: grade em CSS puro */
+.backdrop-static {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--line) var(--rule), transparent var(--rule)),
+    linear-gradient(90deg, var(--line) var(--rule), transparent var(--rule));
+  background-size: 88px 88px, 88px 88px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000 10%, transparent 78%);
+  opacity: 0.5;
+}
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "portfolio-pet-ia",
+  "name": "portfolio-lucas-gabriel",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,10 +8,8 @@
     "start": "next start"
   },
   "dependencies": {
-    "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.7.0",
     "@tailwindcss/postcss": "latest",
-    "framer-motion": "latest",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",

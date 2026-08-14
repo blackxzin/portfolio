@@ -19,6 +19,7 @@
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@types/three": "^0.185.4",
     "autoprefixer": "latest",
     "postcss": "latest",
     "tailwindcss": "latest",

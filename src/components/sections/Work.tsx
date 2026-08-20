@@ -6,7 +6,12 @@ const meta = sections[2];
 export default function Work() {
   return (
     <section id={meta.id} className="shell py-24 md:py-36">
-      <SectionHeading index={meta.index} title="Como eu trabalho" aside={meta.title} />
+      <SectionHeading
+        index={meta.index}
+        title="Como eu trabalho"
+        command={meta.command}
+        aside={meta.title}
+      />
 
       <div className="mt-14 grid gap-x-16 gap-y-12 md:grid-cols-2">
         {work.map((item, i) => (

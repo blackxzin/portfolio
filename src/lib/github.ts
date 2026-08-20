@@ -2,7 +2,6 @@ import { GITHUB_USER } from "@/content/profile";
 
 export interface Repo {
   readonly name: string;
-  readonly description: string | null;
   readonly url: string;
   readonly language: string | null;
   readonly stars: number;
@@ -11,7 +10,6 @@ export interface Repo {
 
 interface GitHubRepoResponse {
   name?: unknown;
-  description?: unknown;
   html_url?: unknown;
   language?: unknown;
   stargazers_count?: unknown;
@@ -19,7 +17,6 @@ interface GitHubRepoResponse {
   fork?: unknown;
 }
 
-const REPO_LIMIT = 6;
 const REVALIDATE_SECONDS = 3600;
 
 /** Valida a resposta da API: campos ausentes ou com tipo errado descartam o repositório. */
@@ -31,7 +28,6 @@ function toRepo(raw: GitHubRepoResponse): Repo | null {
 
   return {
     name: raw.name,
-    description: typeof raw.description === "string" ? raw.description : null,
     url: raw.html_url,
     language: typeof raw.language === "string" ? raw.language : null,
     stars: typeof raw.stargazers_count === "number" ? raw.stargazers_count : 0,
@@ -39,55 +35,16 @@ function toRepo(raw: GitHubRepoResponse): Repo | null {
   };
 }
 
-const SUMMARY_MAX_CHARS = 150;
-
-/** Primeira linha de prosa do README: sem títulos, badges, links soltos ou HTML. */
-function summarizeReadme(markdown: string): string | null {
-  const line = markdown
-    .split("\n")
-    .map((raw) => raw.replace(/^#+\s*/, "").replace(/^[-*>]\s*/, "").trim())
-    .find(
-      (candidate) =>
-        candidate.length > 20 &&
-        !candidate.startsWith("![") &&
-        !candidate.startsWith("<") &&
-        !/^https?:\/\//.test(candidate) &&
-        !/^\[!\[/.test(candidate)
-    );
-
-  if (!line) return null;
-
-  const clean = line.replace(/[*_`]/g, "").trim();
-  return clean.length > SUMMARY_MAX_CHARS ? `${clean.slice(0, SUMMARY_MAX_CHARS).trimEnd()}…` : clean;
-}
-
-async function withReadmeFallback(repo: Repo): Promise<Repo> {
-  if (repo.description) return repo;
-
-  try {
-    const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${repo.name}/readme`, {
-      headers: { Accept: "application/vnd.github.raw+json" },
-      next: { revalidate: REVALIDATE_SECONDS },
-    });
-    if (!res.ok) return repo;
-
-    const summary = summarizeReadme(await res.text());
-    return summary ? { ...repo, description: summary } : repo;
-  } catch {
-    // README indisponível não invalida o repositório; a linha só fica sem resumo
-    return repo;
-  }
-}
-
 /**
  * Busca os repositórios públicos no build/servidor e revalida de hora em hora.
  * O cliente recebe HTML pronto — nenhuma chamada à API do GitHub no navegador.
  * Falha de rede retorna lista vazia; a página mostra o link direto para o perfil.
+ * Devolve a lista completa: quem exibe decide quantos mostrar.
  */
 export async function fetchRepos(): Promise<readonly Repo[]> {
   try {
     const res = await fetch(
-      `https://api.github.com/users/${GITHUB_USER}/repos?sort=updated&per_page=20`,
+      `https://api.github.com/users/${GITHUB_USER}/repos?sort=updated&per_page=100`,
       {
         headers: { Accept: "application/vnd.github+json" },
         next: { revalidate: REVALIDATE_SECONDS },
@@ -105,17 +62,66 @@ export async function fetchRepos(): Promise<readonly Repo[]> {
       return [];
     }
 
-    const repos = data
+    return data
       .map((item) => toRepo(item as GitHubRepoResponse))
-      .filter((repo): repo is Repo => repo !== null)
-      .slice(0, REPO_LIMIT);
-
-    // repositório sem description ainda pode ter uma primeira linha útil no README
-    return Promise.all(repos.map(withReadmeFallback));
+      .filter((repo): repo is Repo => repo !== null);
   } catch (error: unknown) {
     console.error("Falha ao buscar repositórios do GitHub:", error);
     return [];
   }
+}
+
+export interface LanguageShare {
+  readonly language: string;
+  readonly repos: number;
+  readonly percent: number;
+}
+
+export interface GitHubStats {
+  readonly ownRepos: number;
+  readonly totalStars: number;
+  readonly lastPush: string;
+  readonly languages: readonly LanguageShare[];
+}
+
+const TOP_LANGUAGES = 6;
+
+/**
+ * Números agregados a partir dos repositórios públicos.
+ * Só conta o que a API devolve — nada é estimado ou arredondado para cima.
+ */
+export function summarize(repos: readonly Repo[]): GitHubStats | null {
+  if (repos.length === 0) return null;
+
+  const counts = new Map<string, number>();
+  for (const repo of repos) {
+    if (!repo.language) continue;
+    counts.set(repo.language, (counts.get(repo.language) ?? 0) + 1);
+  }
+
+  const classified = [...counts.values()].reduce((sum, count) => sum + count, 0);
+
+  const languages = [...counts.entries()]
+    .map(([language, count]) => ({
+      language,
+      repos: count,
+      percent: Math.round((count / classified) * 100),
+    }))
+    .sort((a, b) => b.repos - a.repos)
+    .slice(0, TOP_LANGUAGES);
+
+  const lastPush = repos
+    .map((repo) => repo.updatedAt)
+    .filter(Boolean)
+    .sort()
+    .at(-1);
+
+  return {
+    ownRepos: repos.length,
+    totalStars: repos.reduce((sum, repo) => sum + repo.stars, 0),
+    lastPush: lastPush ?? "",
+    languages,
+  };
 }
 
 export const LANGUAGE_COLORS: Readonly<Record<string, string>> = {

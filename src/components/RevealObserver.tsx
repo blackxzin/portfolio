@@ -1,15 +1,23 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 /**
- * Um único observer para a página inteira.
+ * Um único observer, reaplicado a cada troca de rota.
  * Qualquer elemento com [data-reveal] ganha data-inview="true" ao entrar na tela
  * — a transição em si é CSS. Assim as seções continuam Server Components.
+ *
+ * Este componente mora no layout raiz e não remonta entre páginas — navegação
+ * client-side (Link/router.push) troca o conteúdo mas mantém o mesmo efeito
+ * vivo. Sem o pathname como dependência, o observer nunca veria os elementos
+ * da página seguinte e eles ficariam presos em opacity:0.
  */
 export default function RevealObserver() {
+  const pathname = usePathname();
+
   useEffect(() => {
-    const targets = document.querySelectorAll<HTMLElement>("[data-reveal]");
+    const targets = document.querySelectorAll<HTMLElement>("[data-reveal]:not([data-inview])");
 
     // sem IntersectionObserver (navegador antigo): mostra tudo, não esconde conteúdo
     if (!("IntersectionObserver" in window)) {
@@ -31,7 +39,7 @@ export default function RevealObserver() {
     targets.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
-  }, []);
+  }, [pathname]);
 
   return null;
 }

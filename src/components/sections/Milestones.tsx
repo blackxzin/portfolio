@@ -6,7 +6,12 @@ const meta = sections[4];
 export default function Milestones() {
   return (
     <section id={meta.id} className="shell py-24 md:py-36">
-      <SectionHeading index={meta.index} title="Para onde estou indo" aside={meta.title} />
+      <SectionHeading
+        index={meta.index}
+        title="Para onde estou indo"
+        command={meta.command}
+        aside={meta.title}
+      />
 
       <ol className="mt-14 m-0 list-none p-0">
         {milestones.map((milestone, i) => (

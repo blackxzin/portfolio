@@ -6,7 +6,12 @@ const meta = sections[0];
 export default function About() {
   return (
     <section id={meta.id} className="shell py-24 md:py-36">
-      <SectionHeading index={meta.index} title="Quem está por trás disso" aside={meta.title} />
+      <SectionHeading
+        index={meta.index}
+        title="Quem está por trás disso"
+        command={meta.command}
+        aside={meta.title}
+      />
 
       <div className="mt-14 grid gap-12 md:grid-cols-12 md:gap-16">
         <div className="md:col-span-7 lg:col-span-6 lg:col-start-2">

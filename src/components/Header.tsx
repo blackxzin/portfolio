@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { profile, sections } from "@/content/profile";
 
@@ -63,7 +64,7 @@ export default function Header() {
                 key={section.id}
                 href={`#${section.id}`}
                 aria-current={isActive ? "true" : undefined}
-                className="label px-3 py-2 transition-colors"
+                className="label nav-link px-3 py-2 transition-colors"
                 style={{ color: isActive ? "var(--paper)" : undefined }}
               >
                 <span style={{ color: isActive ? "var(--signal)" : "var(--paper-faint)" }}>
@@ -75,8 +76,14 @@ export default function Header() {
           })}
         </nav>
 
-        <div className="hidden lg:block label" style={{ color: "var(--signal)" }}>
-          {profile.status}
+        <div className="hidden lg:flex items-center gap-6">
+          <Link href="/curriculo" className="label link-underline">
+            Currículo
+          </Link>
+          <span className="label flex items-center gap-2" style={{ color: "var(--signal)" }}>
+            <span className="status-dot" aria-hidden="true" />
+            {profile.status}
+          </span>
         </div>
 
         <button

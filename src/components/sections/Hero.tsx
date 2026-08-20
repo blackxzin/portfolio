@@ -1,3 +1,4 @@
+import TypeLine from "@/components/TypeLine";
 import { profile } from "@/content/profile";
 
 export default function Hero() {
@@ -6,20 +7,22 @@ export default function Hero() {
   return (
     <section id="topo" className="shell flex min-h-[100svh] flex-col justify-between pt-28 pb-10">
       <div className="flex flex-1 flex-col justify-center">
-        <p className="label" data-reveal>
-          {profile.role}
-        </p>
+        <TypeLine
+          prompt={`${profile.handle} $`}
+          command="whoami"
+          className="label font-[family-name:var(--font-mono)]"
+        />
 
-        <h1
-          className="mt-6 leading-[0.86]"
-          style={{ fontSize: "var(--step-hero)" }}
-          data-reveal
-        >
+        <h1 className="mt-6 leading-[0.86]" style={{ fontSize: "var(--step-hero)" }} data-reveal>
           <span className="block">{first}</span>
           <span className="display block" style={{ color: "var(--signal)" }}>
             {rest.join(" ")}
           </span>
         </h1>
+
+        <p className="label mt-6" data-reveal>
+          {profile.role}
+        </p>
 
         {/* coluna deslocada: quebra a simetria de centro, tom editorial */}
         <div className="mt-10 grid gap-8 md:grid-cols-12">
@@ -39,7 +42,8 @@ export default function Hero() {
         data-reveal
       >
         <div className="label">{profile.location}</div>
-        <div className="label" style={{ color: "var(--signal)" }}>
+        <div className="label flex items-center gap-2" style={{ color: "var(--signal)" }}>
+          <span className="status-dot" aria-hidden="true" />
           {profile.status}
         </div>
         <a href="#sobre" className="label link-underline">

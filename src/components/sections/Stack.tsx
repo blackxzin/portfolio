@@ -10,7 +10,12 @@ const meta = sections[1];
 export default function Stack() {
   return (
     <section id={meta.id} className="shell py-24 md:py-36">
-      <SectionHeading index={meta.index} title="Com o que eu construo" aside={meta.title} />
+      <SectionHeading
+        index={meta.index}
+        title="Com o que eu construo"
+        command={meta.command}
+        aside={meta.title}
+      />
 
       <div className="mt-14 flex flex-col">
         {stack.map((group, i) => (
@@ -31,7 +36,7 @@ export default function Stack() {
               {group.items.map((item) => (
                 <li
                   key={item}
-                  className="font-[family-name:var(--font-mono)] text-[0.9rem]"
+                  className="font-[family-name:var(--font-mono)] text-[0.9rem] transition-colors duration-200 hover:text-[color:var(--signal)]"
                   style={{ color: "var(--paper)" }}
                 >
                   {item}

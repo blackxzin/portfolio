@@ -69,7 +69,7 @@ function Mesh() {
       uTime: { value: 0 },
       uScroll: { value: 0 },
       uBase: { value: new THREE.Color("#4a4a46") },
-      uSignal: { value: new THREE.Color("#ff4d19") },
+      uSignal: { value: new THREE.Color("#ff334f") },
     }),
     []
   );

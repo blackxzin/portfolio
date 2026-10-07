@@ -13,11 +13,11 @@ export default function AppleIcon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0b0b0a",
+          background: "#09090c",
           fontFamily: "Georgia, serif",
         }}
       >
-        <span style={{ color: "#ff4d19", fontSize: 108, fontStyle: "italic" }}>L</span>
+        <span style={{ color: "#ff334f", fontSize: 108, fontStyle: "italic" }}>L</span>
       </div>
     ),
     size

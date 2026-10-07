@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import Backdrop from "@/components/Backdrop";
-import BootSequence from "@/components/BootSequence";
 import CommandPalette from "@/components/CommandPalette";
 import RevealObserver from "@/components/RevealObserver";
 import { contacts, profile } from "@/content/profile";
@@ -29,14 +28,6 @@ const sans = Geist({
 const mono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
-  display: "swap",
-});
-
-const display = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-  style: "italic",
-  variable: "--font-display",
   display: "swap",
 });
 
@@ -70,7 +61,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b0b0a",
+  themeColor: "#09090c",
   colorScheme: "dark",
 };
 
@@ -87,8 +78,9 @@ const personJsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${sans.variable} ${mono.variable} ${display.variable}`}>
+    <html lang="pt-BR" className={`${sans.variable} ${mono.variable}`}>
       <body>
+        <a href="#main-content" className="skip-link">Pular para o conteúdo</a>
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
@@ -103,9 +95,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="scanlines" aria-hidden="true" />
         <div className="grain" aria-hidden="true" />
         <RevealObserver />
-        <BootSequence />
         <CommandPalette />
-        <div className="relative z-10">{children}</div>
+        <div id="main-content" tabIndex={-1} className="relative z-10">{children}</div>
         <Analytics />
       </body>
     </html>

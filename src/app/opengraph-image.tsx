@@ -14,7 +14,7 @@ export default function OpengraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#0b0b0a",
+          background: "#09090c",
           color: "#ececea",
           padding: "80px 96px",
           fontFamily: "Arial, sans-serif",
@@ -39,7 +39,7 @@ export default function OpengraphImage() {
               fontSize: 104,
               lineHeight: 1,
               fontStyle: "italic",
-              color: "#ff4d19",
+              color: "#ff334f",
               fontFamily: "Georgia, serif",
             }}
           >
@@ -59,7 +59,7 @@ export default function OpengraphImage() {
           }}
         >
           <span>{profile.location}</span>
-          <span style={{ color: "#ff4d19" }}>{profile.status}</span>
+          <span style={{ color: "#ff334f" }}>{profile.status}</span>
         </div>
       </div>
     ),

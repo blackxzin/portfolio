@@ -30,7 +30,7 @@ export default async function Projects() {
     <section id={meta.id} className="shell py-24 md:py-36">
       <SectionHeading
         index={meta.index}
-        title="O que já saiu da minha máquina"
+        title="Código que resolve problemas"
         command={meta.command}
         aside={meta.title}
       />
@@ -92,17 +92,17 @@ export default async function Projects() {
         </div>
       ) : null}
 
-      <ul className="mt-16 m-0 list-none p-0">
+      <ul className="project-grid mt-16 m-0 list-none p-0">
         {caseStudies.map((project, i) => (
           <li
             key={project.slug}
-            className={`d${Math.min(i + 1, 4)}`}
+            className={`project-card d${Math.min(i + 1, 4)}`}
             style={{ borderTop: "1px solid var(--line)" }}
             data-reveal
           >
             <Link
               href={`/projetos/${project.slug}`}
-              className="scan-hover group grid gap-4 py-8 md:grid-cols-12 md:gap-10"
+              className="project-card-link scan-hover group"
             >
               <div className="md:col-span-4">
                 <span className="label" style={{ color: "var(--signal)" }}>

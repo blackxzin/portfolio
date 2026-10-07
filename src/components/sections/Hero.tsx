@@ -1,54 +1,30 @@
+import Link from "next/link";
 import TypeLine from "@/components/TypeLine";
+import CyberCore from "@/components/CyberCore";
 import { profile } from "@/content/profile";
 
 export default function Hero() {
-  const [first, ...rest] = profile.name.split(" ");
-
   return (
-    <section id="topo" className="shell flex min-h-[100svh] flex-col justify-between pt-28 pb-10">
-      <div className="flex flex-1 flex-col justify-center">
-        <TypeLine
-          prompt={`${profile.handle} $`}
-          command="whoami"
-          className="label font-[family-name:var(--font-mono)]"
-        />
-
-        <h1 className="mt-6 leading-[0.86]" style={{ fontSize: "var(--step-hero)" }} data-reveal>
-          <span className="block">{first}</span>
-          <span className="display block" style={{ color: "var(--signal)" }}>
-            {rest.join(" ")}
-          </span>
-        </h1>
-
-        <p className="label mt-6" data-reveal>
-          {profile.role}
-        </p>
-
-        {/* coluna deslocada: quebra a simetria de centro, tom editorial */}
-        <div className="mt-10 grid gap-8 md:grid-cols-12">
-          <p
-            className="d2 md:col-span-6 md:col-start-6 lg:col-span-5 lg:col-start-7"
-            style={{ fontSize: "var(--step-lead)", color: "var(--paper-dim)", lineHeight: 1.45 }}
-            data-reveal
-          >
-            {profile.intro}
-          </p>
+    <section id="topo" className="shell hero">
+      <div className="hero-layout">
+        <div className="hero-copy">
+          <p className="label hero-eyebrow"><span className="status-dot" aria-hidden="true" /> {profile.status}</p>
+          <TypeLine prompt={`${profile.handle} $`} command="whoami" className="label" />
+          <h1>Lucas<span>Gabriel<span className="hero-period">.</span></span></h1>
+          <p className="hero-role">Desenvolvimento.<br /><span>Automação. Segurança.</span></p>
+          <p className="hero-description">Transformo problemas em código, conecto sistemas e exploro o que existe por trás da interface. Foco em back-end, IA aplicada e segurança defensiva.</p>
+          <div className="hero-actions">
+            <a className="action-primary" href="#projetos">Explorar projetos <span aria-hidden="true">↗</span></a>
+            <a className="action-secondary" href="#contato">Vamos conversar <span aria-hidden="true">→</span></a>
+          </div>
+          <div className="hero-skills label"><span>Python</span><span>Linux</span><span>FastAPI</span><span>Docker</span></div>
         </div>
+        <CyberCore />
       </div>
-
-      <div
-        className="flex flex-wrap items-end justify-between gap-4 pt-10"
-        style={{ borderTop: "1px solid var(--line)" }}
-        data-reveal
-      >
-        <div className="label">{profile.location}</div>
-        <div className="label flex items-center gap-2" style={{ color: "var(--signal)" }}>
-          <span className="status-dot" aria-hidden="true" />
-          {profile.status}
-        </div>
-        <a href="#sobre" className="label link-underline">
-          Rolar ↓
-        </a>
+      <div className="hero-footer label">
+        <span>{profile.location}</span>
+        <Link href="/curriculo" className="link-underline">Ver currículo ↗</Link>
+        <a href="#sobre" className="link-underline">Conheça meu trabalho ↓</a>
       </div>
     </section>
   );

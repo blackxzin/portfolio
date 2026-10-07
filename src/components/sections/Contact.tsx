@@ -21,9 +21,7 @@ export default function Contact() {
           style={{ fontSize: "var(--step-lead)", lineHeight: 1.4 }}
           data-reveal
         >
-          Procuro <span className="display" style={{ color: "var(--signal)" }}>estágio</span> em
-          desenvolvimento, automação ou segurança defensiva. Se algo aqui fez sentido para o seu
-          time, o canal está aberto — respondo no mesmo dia.
+          {profile.contactIntro}
         </p>
 
         <ul className="md:col-span-5 md:col-start-8 m-0 list-none p-0" data-reveal>
@@ -34,7 +32,7 @@ export default function Contact() {
             >
               <span className="label">Currículo</span>
               <span className="link-underline text-[0.95rem]" style={{ color: "var(--signal)" }}>
-                Baixar PDF ↓
+                Ver e imprimir ↗
               </span>
             </Link>
           </li>

@@ -40,259 +40,353 @@ export interface CaseStudy {
 
 export const caseStudies: readonly CaseStudy[] = [
   {
-    slug: "cybersecurity-ai",
-    repo: "cyber-assitente",
-    name: "Cybersecurity AI",
-    tagline: "Assistente de segurança defensiva com IA local e aprovação humana obrigatória",
-    status: "em desenvolvimento",
-    role: "Projeto solo — arquitetura, backend, camada de segurança e interface",
-    summary:
-      "Assistente de segurança defensiva para Linux rodando IA local via Ollama. Agentes especializados escolhem a ferramenta certa, explicam o resultado em português e exigem aprovação humana antes de qualquer varredura ativa.",
-    stack: ["Python 3.12", "FastAPI", "Ollama", "SSE", "SQLite", "Electron", "faster-whisper"],
-    problem:
-      "Ferramenta de auditoria conectada a um LLM é uma péssima ideia se o modelo puder executar sozinho. Um prompt mal interpretado vira varredura em rede de terceiro, captura de tráfego indevida ou comando destrutivo. Eu queria a conveniência de pedir em português — sem entregar o gatilho para o modelo.",
-    approach: [
-      "O orquestrador classifica a intenção da mensagem e decide qual ferramenta usar. Ferramentas de leitura (interfaces, rotas, DNS, portas locais, serviços systemd, logs, uso de CPU e disco) executam direto. Ferramentas de auditoria ativa — nmap, captura de pacotes, OSINT — param e abrem um modal de aprovação com o comando exato que será executado.",
-      "Aprovar executa e o LLM interpreta o resultado real. Negar não roda nada. Ninguém decidir em cinco minutos expira a ação. Os três caminhos ficam registrados em log estruturado e no SQLite.",
-      "Em paralelo, uma Safety Layer independente do modelo aplica denylist absoluta (rm, dd, mkfs, shutdown) e bloqueio permanente de ferramentas ofensivas (masscan, sqlmap, metasploit, hydra). Nenhuma execução passa por shell — argv direto, sem espaço para injeção — com timeout rígido e saída sanitizada de segredos.",
-      "Um watcher roda a cada cinco minutos comparando o estado do sistema com o anterior: porta nova escutando vira alerta, porta nova entre dois scans do mesmo host vira alerta, disco acima do limite vira alerta. Resultado de OSINT com CPF é purgado automaticamente depois do prazo de retenção, por LGPD.",
+    "slug": "jobpilot-ai",
+    "repo": "jobpilot-ai",
+    "name": "JobPilot AI",
+    "tagline": "Busca de vagas, análise de currículo e acompanhamento de candidaturas em uma plataforma.",
+    "status": "em desenvolvimento",
+    "role": "Projeto pessoal — desenvolvimento e integração de funcionalidades",
+    "stack": [
+      "Python",
+      "FastAPI",
+      "Next.js",
+      "PostgreSQL",
+      "Celery",
+      "Redis",
+      "Docker"
     ],
-    diagram: `input → sanitize → Orchestrator (classifica intenção)
-     → decide ferramenta (+ args)
-     → risco moderado? → PEDE CONFIRMAÇÃO humana
-          ├─ aprovar → executa → LLM explica o resultado real
-          └─ negar   → nada roda (tudo fica registrado)
-     → leitura segura → executa → LLM explica
-     → stream SSE para o chat
-     → persistência SQLite`,
-    decisions: [
-      {
-        title: "IA local em vez de API de terceiro",
-        body: "O assistente lê log, saída de scan e configuração de rede da minha máquina. Mandar isso para uma API externa é vazar superfície de ataque para fora. Roda um DeepHat-V1-7B via Ollama — mais lento que um modelo grande de API, e o dado nunca sai do host.",
-      },
-      {
-        title: "Confirmação humana como parte da arquitetura, não como aviso",
-        body: "Não é um alerta que o usuário clica sem ler. É uma fila de aprovações com estados explícitos (pendente, aprovado, negado, expirado) que a ferramenta consulta antes de rodar. Sem registro aprovado, a execução simplesmente não acontece.",
-      },
-      {
-        title: "Nunca passar por shell",
-        body: "O executor recebe argv como lista e chama o binário direto. Isso elimina toda a classe de injeção por metacaractere, que é exatamente o risco quando um LLM monta os argumentos.",
-      },
-      {
-        title: "Três modos de operação",
-        body: "SAFE_MODE alterna entre 'safe' (só leitura), 'assisted' (leitura mais confirmação) e 'advanced'. Quem instala escolhe o quanto de autonomia quer dar antes de qualquer coisa rodar.",
-      },
+    "summary": "Plataforma de carreira com busca semântica, análise de compatibilidade e organização de candidaturas. Integra diferentes provedores de IA e oferece um analisador local para funcionar sem chave de API.",
+    "problem": "A busca por oportunidades envolve reunir vagas, comparar requisitos e acompanhar candidaturas em várias ferramentas. O projeto concentra esse processo em um fluxo único.",
+    "approach": [
+      "A API em FastAPI reúne autenticação, vagas, currículos, agenda e candidaturas. O frontend em Next.js apresenta o pipeline e as análises em uma interface integrada.",
+      "Workers Celery executam ingestão de vagas, análises e notificações em segundo plano. PostgreSQL mantém os dados e Redis apoia filas e cache.",
+      "A análise pode usar um provedor de LLM ou um analisador local. A busca usa embeddings de API compatível ou vetorização local, com ranqueamento em NumPy. A demonstração pública utiliza dados capturados; upload, chat e coleta externa dependem do backend."
     ],
-    evidence: [
-      { label: "Testes", value: "pytest — validação de entrada, Safety Layer e fluxo de aprovação" },
-      { label: "CI", value: "GitHub Actions roda a suíte a cada push e PR" },
-      { label: "Cobre", value: "allowlist, denylist, flag-injection, sanitização de segredos" },
-      { label: "Fases", value: "1, 2, 5 concluídas · 6 parcial" },
+    "decisions": [
+      {
+        "title": "Provedores intercambiáveis",
+        "body": "A integração suporta OpenAI, Anthropic, Gemini, NVIDIA NIM, Ollama e OpenRouter. As chaves são criptografadas com Fernet antes da persistência."
+      },
+      {
+        "title": "Operação sem chave de API",
+        "body": "O analisador local calcula compatibilidade e compõe textos com os dados disponíveis. Ele permite explorar o produto com resultados mais simples que os de um LLM."
+      }
     ],
-    learned:
-      "Escrever a camada de segurança antes das ferramentas mudou o projeto inteiro. Quando a regra é 'nada executa sem registro aprovado', cada ferramenta nova nasce dentro do trilho em vez de precisar ser contida depois. O caro não foi implementar a confirmação — foi decidir que ela era inegociável.",
+    "evidence": [
+      {
+        "label": "Demonstração",
+        "value": "Interface navegável com dados de demonstração documentada no README."
+      },
+      {
+        "label": "Qualidade",
+        "value": "README documenta testes de backend e CI com lint, build e gate de cobertura."
+      },
+      {
+        "label": "Infraestrutura",
+        "value": "Docker Compose, migrations e guias de implantação."
+      },
+      {
+        "label": "Autenticação",
+        "value": "Login, sessões e integração com LinkedIn OAuth."
+      }
+    ],
+    "learned": "O projeto reúne prática de APIs, processamento assíncrono e integração com IA. O principal desafio de engenharia é manter as funções essenciais utilizáveis mesmo quando um provedor externo não está configurado."
   },
   {
-    slug: "cyberhub-ai",
-    repo: "cyber-Hub",
-    name: "CyberHub AI",
-    tagline: "Monorepo de automação e threat intel — API, dashboard, bot e workflows agendados",
-    status: "v1 completa",
-    role: "Projeto solo — ADR, monorepo, API, dashboard, bot e infraestrutura",
-    summary:
-      "Central de automação e threat intel: dashboard em Next.js, API em NestJS, bot de Discord, workflows n8n e consultas a NVD, CISA KEV, VirusTotal, AbuseIPDB e Shodan. Arquitetura documentada em ADR antes da primeira linha de código.",
-    stack: ["NestJS", "Next.js 14", "PostgreSQL 16", "Prisma", "Redis", "BullMQ", "n8n", "discord.js"],
-    problem:
-      "Acompanhar CVE nova, boletim da CISA e reputação de IP significa abrir cinco abas e repetir a mesma consulta todo dia. Eu queria uma central que puxasse tudo sozinha, guardasse histórico e me avisasse — com a IA explicando o que a vulnerabilidade significa em português, não colando o texto do NVD.",
-    approach: [
-      "Monorepo pnpm com turborepo: três aplicações (dashboard Next.js, API NestJS, bot Discord) sobre quatro pacotes compartilhados (database, shared, types, utils). O bot nunca fala com o banco — consome a mesma API que o dashboard, autenticado por API key.",
-      "Duas camadas de job com responsabilidades separadas: BullMQ sobre Redis para trabalho interno da aplicação, como gerar relatório em PDF; n8n para orquestração externa agendada, como o cron diário que puxa a CISA KEV. O n8n devolve os dados para a API por webhook assinado com HMAC.",
-      "Acesso a dados sempre via Repository. O service não conhece o Prisma. Isso mantém a regra de negócio testável e deixa a troca de ORM como problema de uma camada só.",
-      "A camada de IA é um Strategy: o AIService fala com uma interface, e o provider concreto (Hermes no Ollama por padrão) é escolhido por configuração. Sem o Ollama de pé, existe fallback offline em vez de erro na cara do usuário.",
+    "slug": "cyberhub-ai",
+    "repo": "cyber-Hub",
+    "name": "CyberHub AI",
+    "tagline": "Dashboard, automação e inteligência de ameaças conectados por uma API.",
+    "status": "em desenvolvimento",
+    "role": "Projeto pessoal — desenvolvimento e integração de funcionalidades",
+    "stack": [
+      "NestJS",
+      "Next.js",
+      "PostgreSQL",
+      "Prisma",
+      "Redis",
+      "BullMQ",
+      "n8n",
+      "Ollama"
     ],
-    diagram: `apps/
-  dashboard/   Next.js — painel, métricas, CVEs, intel
-  api/         NestJS + Fastify — auth/RBAC, jobs, IA, intel
-  discord-bot/ discord.js — consome a API via x-api-key
-packages/
-  database/    Prisma schema + repositories
-  shared/      logger, config, erros de domínio
-  types/       DTOs e schemas zod compartilhados
-n8n/
-  workflows/   cve-daily, news-daily (cron → HMAC → API)`,
-    decisions: [
-      {
-        title: "ADR antes de código",
-        body: "Escrevi o Architecture Decision Record completo — quase trinta mil caracteres — antes de implementar. Cada escolha ficou registrada com alternativa considerada e motivo. Seis meses depois eu ainda sei por que o BullMQ e o n8n coexistem em vez de um substituir o outro.",
-      },
-      {
-        title: "NestJS com adapter Fastify",
-        body: "Precisava de módulos, injeção de dependência e RBAC maduros sem montar tudo à mão. O Fastify no lugar do Express foi para não pagar overhead de HTTP à toa.",
-      },
-      {
-        title: "BullMQ e n8n resolvendo coisas diferentes",
-        body: "Job que pertence à aplicação e precisa de retry, prioridade e acesso ao domínio fica no BullMQ. Orquestração externa agendada, que muda mais que o código, fica em workflow n8n versionado em JSON — dá para editar sem redeploy.",
-      },
-      {
-        title: "Webhook n8n assinado com HMAC",
-        body: "O gateway que recebe os dados do n8n fica exposto. Assinatura HMAC garante que só o meu workflow consegue escrever no banco por ali.",
-      },
+    "summary": "Central full stack que reúne consultas de segurança, relatórios e alertas. Conecta dashboard web, bot de Discord e workflows n8n a uma API NestJS, com IA local para contextualizar informações.",
+    "problem": "Consultar vulnerabilidades, reputação de endereços e notícias em fontes diferentes dificulta acompanhar o histórico e organizar alertas. A proposta é reunir essas informações e automatizar consultas recorrentes.",
+    "approach": [
+      "O monorepo separa dashboard Next.js, API NestJS/Fastify e bot de Discord. Pacotes compartilhados organizam tipos, banco de dados e utilitários.",
+      "As integrações consultam NVD, CISA e serviços de inteligência de ameaças. Workflows n8n executam rotinas externas e a fila BullMQ processa tarefas internas, como relatórios.",
+      "A camada de IA usa Ollama para explicar informações em português. Decisões e alternativas de arquitetura são registradas em ADR. O repositório mantém o projeto identificado como em desenvolvimento."
     ],
-    evidence: [
-      { label: "Roadmap", value: "Fases 0 a 6 concluídas — do ADR ao dashboard completo" },
-      { label: "CI", value: "GitHub Actions com typecheck e build via turbo em PR e push" },
-      { label: "Deploy", value: "docker-compose.prod.yml — api, bot, postgres, redis, n8n, ollama" },
-      { label: "Auth", value: "JWT access e refresh em cookie httpOnly, RBAC e API key" },
+    "decisions": [
+      {
+        "title": "API como ponto de integração",
+        "body": "Dashboard e bot consomem a mesma API, concentrando regras de negócio e controle de acesso."
+      },
+      {
+        "title": "Filas e workflows com papéis distintos",
+        "body": "BullMQ cuida de jobs da aplicação; n8n organiza integrações agendadas. Webhooks usam assinatura HMAC."
+      }
     ],
-    learned:
-      "O ADR foi o que mais rendeu. Escrever a decisão antes obrigou a comparar alternativa de verdade em vez de pegar a primeira que funcionasse — e cortou pela metade o tempo que eu costumava perder refazendo escolha já tomada. Hoje começo qualquer projeto grande assim.",
+    "evidence": [
+      {
+        "label": "Arquitetura",
+        "value": "ADR e estrutura do monorepo documentados."
+      },
+      {
+        "label": "Acesso",
+        "value": "JWT em cookie httpOnly, RBAC e autenticação por API key."
+      },
+      {
+        "label": "CI",
+        "value": "Workflow de typecheck e build."
+      },
+      {
+        "label": "Operação",
+        "value": "Docker Compose e configuração de serviços documentados."
+      }
+    ],
+    "learned": "O projeto exercita organização de monorepos, autenticação e comunicação entre serviços. A documentação das decisões torna mais claro como cada componente contribui para o sistema."
   },
   {
-    slug: "jobpilot-ai",
-    repo: "JOBPILOT_AI",
-    name: "JobPilot AI",
-    tagline: "Copiloto de carreira com busca semântica e seis provedores de LLM intercambiáveis",
-    status: "v1 completa",
-    role: "Projeto solo — backend, frontend, workers, testes e deploy",
-    summary:
-      "Busca vagas em seis fontes externas, faz matching semântico com pgvector e gera carta e currículo sob medida através de seis provedores de LLM que se trocam por configuração.",
-    stack: ["FastAPI", "Next.js 14", "PostgreSQL + pgvector", "Celery", "Redis", "Docker", "Fernet"],
-    problem:
-      "Procurar estágio é trabalho repetitivo: abrir seis sites, reler a mesma vaga, reescrever a mesma carta trocando o nome da empresa. É exatamente o tipo de tarefa que eu acho que não deveria ser feita à mão — então automatizei enquanto procurava.",
-    approach: [
-      "Backend em FastAPI dividido em módulos por domínio: auth, jobs, resume, applications, ai, analytics, search. Cada módulo isola sua regra e expõe a rota — a estrutura segue Clean Architecture para o service não depender do detalhe de infraestrutura.",
-      "Busca de vagas em seis fontes externas mais busca semântica local: as vagas são indexadas como embeddings no pgvector, então 'automação de processos' encontra vaga escrita como 'RPA' — coisa que busca por palavra-chave nunca acha.",
-      "Scraping, matching, análise ATS e envio de email rodam em Celery com Redis como broker. A requisição HTTP devolve na hora e o trabalho pesado acontece no worker — sem timeout de request esperando o LLM responder.",
-      "As chaves de API dos provedores ficam criptografadas com Fernet no banco, nunca em texto puro, e os resultados de LLM são cacheados no Redis por uma hora para não pagar duas vezes pela mesma análise.",
+    "slug": "code-analyzer-ai",
+    "repo": "code-analyzer-ai",
+    "name": "Code Analyzer AI",
+    "tagline": "API Java para revisão de código assistida por IA local.",
+    "status": "em desenvolvimento",
+    "role": "Projeto pessoal — desenvolvimento e integração de funcionalidades",
+    "stack": [
+      "Java",
+      "Spring Boot",
+      "WebFlux",
+      "Ollama",
+      "SSE",
+      "OpenAPI"
     ],
-    diagram: `LLMService (aplicação)
-    │
-    ▼
-LLMProvider (interface de domínio)
-    │
-    ├── OpenAI      ├── Anthropic   ├── Gemini
-    ├── Ollama      ├── NVIDIA NIM  └── OpenRouter
-    │
-Factory escolhe o provider pela configuração do usuário`,
-    decisions: [
-      {
-        title: "Strategy para os provedores de LLM",
-        body: "Seis provedores atrás de uma interface só. Trocar de modelo é configuração, não refatoração — e em desenvolvimento eu uso a NVIDIA NIM, que é gratuita, sem mudar uma linha do código de aplicação.",
-      },
-      {
-        title: "pgvector em vez de banco vetorial separado",
-        body: "As vagas já estavam no Postgres. Subir Pinecone ou Qdrant significaria manter dois bancos sincronizados para ganhar performance que, nessa escala, não faz diferença nenhuma.",
-      },
-      {
-        title: "Celery para tudo que demora",
-        body: "Scraping de seis fontes e chamada de LLM não cabem no ciclo de uma requisição. Vão para a fila, o usuário recebe resposta imediata e a notificação chega quando termina.",
-      },
-      {
-        title: "Chave de API criptografada com Fernet",
-        body: "O usuário cadastra a própria chave dos provedores. Guardar isso em texto puro seria transformar um vazamento de banco em vazamento de credencial de terceiro.",
-      },
+    "summary": "API REST em Java e Spring Boot que recebe código, identifica a linguagem e gera sugestões sobre qualidade, segurança e manutenção. Usa Ollama e oferece respostas em streaming com SSE.",
+    "problem": "Revisar código envolve identificar problemas e explicar possíveis melhorias. O projeto transforma essa análise em uma API que pode ser integrada a outras ferramentas de desenvolvimento.",
+    "approach": [
+      "Controllers recebem as requisições e serviços separam detecção de linguagem, análise e comunicação com o Ollama. DTOs organizam entradas, resultados e erros.",
+      "As respostas apresentam problemas, severidades e sugestões de alteração. Um endpoint SSE transmite a saída progressivamente, enquanto Swagger/OpenAPI documenta o contrato da API.",
+      "As avaliações são sugestões geradas por um modelo de linguagem e precisam de revisão humana; não substituem testes ou análise estática."
     ],
-    evidence: [
-      { label: "Testes", value: "47 testes em pytest — auth, IA, OAuth, busca semântica, notificações" },
-      { label: "CI", value: "GitHub Actions" },
-      { label: "Infra", value: "docker compose com 6 serviços · 20 tabelas · migrations Alembic" },
-      { label: "Deploy", value: "guias prontos para Coolify e Railway" },
+    "decisions": [
+      {
+        "title": "IA local com Ollama",
+        "body": "Permite executar a análise com um modelo no ambiente configurado pelo desenvolvedor."
+      },
+      {
+        "title": "Serviços e contratos separados",
+        "body": "A divisão entre controller, DTOs e serviços facilita entender o fluxo e alterar integrações."
+      }
     ],
-    learned:
-      "Foi onde aprendi a diferença entre 'funciona na minha máquina' e 'outra pessoa consegue subir'. Os 47 testes vieram de bugs reais que eu quebrei e reintroduzi — cada teste é uma cicatriz. E escrever guia de deploy me obrigou a admitir todas as variáveis de ambiente que eu tinha deixado hardcoded.",
+    "evidence": [
+      {
+        "label": "API",
+        "value": "Endpoints de análise, streaming, detecção de linguagem e health check."
+      },
+      {
+        "label": "Documentação",
+        "value": "Swagger/OpenAPI e exemplos de requisição no README."
+      },
+      {
+        "label": "Stack",
+        "value": "Java 17, Spring Boot e WebFlux."
+      },
+      {
+        "label": "Erros",
+        "value": "Handler global e exceções específicas para integração com IA."
+      }
+    ],
+    "learned": "O projeto aplica fundamentos de Java e Spring em um serviço integrado a LLMs, com atenção a contratos de API, tratamento de falhas e entrega progressiva de respostas."
   },
   {
-    slug: "linuxdesk",
-    repo: "LinuxDesk",
-    name: "LinuxDesk",
-    tagline: "Segundo monitor por Wi-Fi: streaming H.264 de Linux para Android com baixa latência",
-    status: "release pública",
-    role: "Projeto solo, aberto a contribuições — servidor Python e cliente Android",
-    summary:
-      "Transforma um tablet Android em segundo monitor de um PC Linux pela rede local. Captura em X11 ou Wayland, encode H.264, transporte por WebSocket e decode por MediaCodec no aparelho.",
-    stack: ["Python", "Kotlin", "FFmpeg", "H.264", "WebSocket", "MediaCodec", "TLS"],
-    problem:
-      "Eu tinha um tablet parado e queria usar como segundo monitor no Linux. As soluções existentes ou eram pagas, ou só espelhavam a tela principal, ou não funcionavam em Wayland. Espelhar é fácil; monitor de verdade — com área de trabalho própria — é outro problema.",
-    approach: [
-      "O servidor captura a tela, encoda em H.264 com preset ultrafast e tune zerolatency, separa o stream Annex-B em NAL units individuais e envia cada uma como mensagem binária no WebSocket. O cliente Android alimenta o MediaCodec e desenha em tela cheia.",
-      "O backend de captura é detectado sozinho: x11grab no X11, grim via wlr-screencopy no Wayland — testado no Hyprland. Sem configuração manual para escolher.",
-      "Para segundo monitor de verdade, o servidor cria um monitor virtual headless no compositor e transmite só o conteúdo dele. O tablet vira uma área de trabalho separada em vez de uma cópia da tela principal.",
-      "A latência foi trabalho de detalhe acumulado: ajuste de bitrate e resolução de encode, GOP curto, Nagle desativado no socket, e correção de ghosting no reconector do decoder. O broadcast envia a todos os clientes em paralelo — um aparelho lento não segura mais os outros.",
+    "slug": "shimeji-ia",
+    "repo": "shimeji-ia-",
+    "name": "Shimeji IA",
+    "tagline": "Assistente de desktop com voz, memória e análise de tela.",
+    "status": "em desenvolvimento",
+    "role": "Projeto pessoal — desenvolvimento e integração de funcionalidades",
+    "stack": [
+      "Python",
+      "Tkinter",
+      "Groq",
+      "Threading",
+      "pytest"
     ],
-    diagram: `┌──────────────────────────┐
-│         Linux PC          │
-│  Captura (X11 / Wayland)   │
-│         ↓                  │
-│  Encode H.264 (ffmpeg)      │
-│         ↓                   │
-│  WebSocket (NAL units)       │
-└────────────┬─────────────────┘
-             │ Wi-Fi / LAN
-             ▼
-┌──────────────────────────┐
-│      Android / Tablet     │
-│  Decode (MediaCodec)       │
-│         ↓                  │
-│  Tela cheia + áudio AAC     │
-└──────────────────────────┘`,
-    decisions: [
-      {
-        title: "WebSocket em vez de WebRTC",
-        body: "WebRTC resolveria NAT traversal e controle de congestionamento, mas o cenário é rede local. Pagar a complexidade de signaling e ICE para um caso onde os dois lados se enxergam direto não se justificava.",
-      },
-      {
-        title: "TLS com trust-on-first-use",
-        body: "Certificado autoassinado com pinning de fingerprint no Android, no mesmo modelo de host key do SSH. Emitir certificado válido para IP de rede local não é prático — TOFU dá proteção real contra man-in-the-middle depois do primeiro pareamento.",
-      },
-      {
-        title: "Comparação de token timing-safe",
-        body: "A autenticação por token compartilhado compara em tempo constante. Detalhe pequeno, mas comparação ingênua vazaria o token por diferença de tempo de resposta.",
-      },
-      {
-        title: "Input remoto: bloqueado e documentado",
-        body: "Investiguei controlar mouse e teclado do PC pelo tablet. Esbarra em acesso root que este ambiente não tem. Deixei registrado no README como investigado e bloqueado, em vez de anunciar no roadmap uma coisa que não vai sair.",
-      },
+    "summary": "Assistente visual de desktop que combina comandos de voz, notas, alarmes e integração com IA. Analisa a tela, auxilia na revisão de código e permite adicionar habilidades em Python.",
+    "problem": "Comandos simples, lembretes e dúvidas de programação interrompem o fluxo de trabalho. A proposta é oferecer um assistente acessível na própria área de trabalho.",
+    "approach": [
+      "A aplicação separa interface, comandos, memória, voz e integração com IA em módulos. Funções básicas ficam disponíveis sem depender de um modelo remoto.",
+      "Voz, alarmes e tarefas demoradas trabalham fora da thread da interface. Um despachante encaminha atualizações para o laço principal do Tkinter.",
+      "A análise de tela usa captura e modelos de visão. O modo de demonstração permite observar um roteiro sem rede ou microfone; funcionalidades de IA dependem da configuração do provedor."
     ],
-    evidence: [
-      { label: "Testes", value: "pytest no servidor — parsing de NAL units, auth, broadcast" },
-      { label: "CI", value: "GitHub Actions compila o APK a cada push" },
-      { label: "Distribuição", value: "APK pronto nas releases do GitHub" },
-      { label: "Validação", value: "testado ponta a ponta em aparelho real" },
+    "decisions": [
+      {
+        "title": "Interface atualizada na thread principal",
+        "body": "Workers publicam ações para o despachante, evitando acesso direto a widgets Tkinter."
+      },
+      {
+        "title": "Lógica testável sem janela",
+        "body": "Comandos, memória e cálculo são separados da interface, facilitando a validação automatizada."
+      }
     ],
-    learned:
-      "Latência não caiu com uma solução — caiu com seis pequenas somadas. Foi a primeira vez que precisei medir antes de otimizar, porque cada palpite meu sobre a origem do atraso estava errado. Também foi onde aprendi que 'não vou fazer, e o motivo é este' é uma entrada de README melhor que silêncio.",
+    "evidence": [
+      {
+        "label": "Demonstração",
+        "value": "Modo --demo, GIF e capturas disponíveis no repositório."
+      },
+      {
+        "label": "Testes",
+        "value": "Suíte pytest e relatório de cobertura documentados no README."
+      },
+      {
+        "label": "Extensão",
+        "value": "Habilidades carregadas a partir de módulos Python."
+      },
+      {
+        "label": "Segurança",
+        "value": "Validação de comandos e auto-modificação desativada por padrão."
+      }
+    ],
+    "learned": "A aplicação conecta concorrência, interface gráfica e serviços de IA. A separação entre lógica e interface é essencial para manter o desktop responsivo e tornar o comportamento testável."
   },
+  {
+    "slug": "cybersecurity-ai",
+    "repo": "cybersecurity-assistant",
+    "name": "Cybersecurity AI",
+    "tagline": "Assistente de cibersegurança para estudos e auditorias em ambientes autorizados.",
+    "status": "em desenvolvimento",
+    "role": "Projeto pessoal — desenvolvimento e integração de funcionalidades",
+    "stack": [
+      "Python",
+      "FastAPI",
+      "Ollama",
+      "SQLite",
+      "SSE",
+      "Electron"
+    ],
+    "summary": "Assistente para Linux com agentes de IA, diagnóstico de sistema e ferramentas de auditoria. Reúne chat, voz, dashboard e registros de execução, com modos configuráveis de operação.",
+    "problem": "Interpretar saídas de ferramentas e acompanhar o estado do sistema exige alternar entre terminal, documentação e relatórios. O assistente integra essas tarefas em uma interface contextual.",
+    "approach": [
+      "FastAPI expõe chat em streaming, ferramentas e dados do sistema. Agentes especializados organizam pedidos e usam modelos locais ou provedores configuráveis para interpretar resultados.",
+      "No modo assistido, ações de auditoria ativa passam por aprovação humana. O projeto também oferece modos de leitura e avançado; o comportamento depende da configuração. O escopo de alvos é opcional e deve ser configurado para o uso pretendido.",
+      "A aplicação mantém logs, memória em SQLite e alertas de monitoramento. O overlay em Electron conecta a personagem à interação por voz e ao estado do sistema. O README ressalta que o projeto ainda não é estável para produção."
+    ],
+    "decisions": [
+      {
+        "title": "Modos de operação explícitos",
+        "body": "A distinção entre leitura, assistência e modo avançado deixa a autonomia dependente da configuração, sem apresentar a aprovação como garantia universal."
+      },
+      {
+        "title": "Registro e acompanhamento",
+        "body": "Histórico de ferramentas, alertas e relatórios permitem acompanhar o que ocorreu durante a utilização."
+      }
+    ],
+    "evidence": [
+      {
+        "label": "Demonstração",
+        "value": "Demo estática documentada; não executa ferramentas no navegador."
+      },
+      {
+        "label": "Testes",
+        "value": "Suíte de testes e gate de cobertura documentados."
+      },
+      {
+        "label": "Interface",
+        "value": "Chat SSE, dashboard e overlay de desktop."
+      },
+      {
+        "label": "Estado",
+        "value": "Em desenvolvimento ativo; utilização em ambientes próprios ou autorizados."
+      }
+    ],
+    "learned": "O projeto explora orquestração de agentes, integração com ferramentas e interação em tempo real. Também evidencia a importância de documentar corretamente permissões, limites e modos de execução."
+  },
+  {
+    "slug": "linuxdesk",
+    "repo": "LinuxDesk",
+    "name": "LinuxDesk",
+    "tagline": "Streaming de tela do Linux para Android pela rede local.",
+    "status": "em desenvolvimento",
+    "role": "Projeto pessoal — desenvolvimento e integração de funcionalidades",
+    "stack": [
+      "Python",
+      "Kotlin",
+      "FFmpeg",
+      "WebSocket",
+      "H.264",
+      "MediaCodec"
+    ],
+    "summary": "Transforma um dispositivo Android em tela para um PC Linux. Integra captura em X11 ou Wayland, transmissão por WebSocket e decodificação no Android, com suporte a monitor virtual no Hyprland.",
+    "problem": "Reutilizar um tablet como monitor exige capturar, transmitir e exibir vídeo com estabilidade. O projeto explora esse fluxo em Linux e Android pela rede local.",
+    "approach": [
+      "O servidor Python captura a tela e usa FFmpeg para codificar vídeo H.264. Os dados são agrupados em frames completos antes de seguir pelo WebSocket.",
+      "O cliente Kotlin utiliza MediaCodec para exibir o vídeo. Filas independentes por cliente impedem que uma conexão lenta bloqueie os demais dispositivos.",
+      "No Hyprland, um monitor virtual permite estender a área de trabalho. Token e TLS são opcionais; áudio tem suporte experimental e controle remoto de mouse e teclado continua pendente."
+    ],
+    "decisions": [
+      {
+        "title": "Frames completos no transporte",
+        "body": "Agrupar as unidades NAL de cada frame evita atribuir instantes diferentes a partes da mesma imagem."
+      },
+      {
+        "title": "Filas por cliente",
+        "body": "Cada conexão mantém seu próprio backlog, com descarte de frames antigos para controlar o acúmulo."
+      }
+    ],
+    "evidence": [
+      {
+        "label": "Servidor",
+        "value": "Captura, configuração, framing e distribuição em módulos separados."
+      },
+      {
+        "label": "Qualidade",
+        "value": "Testes Python e CI de build/lint Android documentados."
+      },
+      {
+        "label": "Compatibilidade",
+        "value": "Suporte documentado a X11 e Wayland/wlroots."
+      },
+      {
+        "label": "Limitações",
+        "value": "Sem input remoto; TLS opcional com trust-on-first-use."
+      }
+    ],
+    "learned": "O projeto combina redes, concorrência e processamento de mídia. As decisões de framing e filas mostram como detalhes de protocolo influenciam a estabilidade da aplicação."
+  }
 ] as const;
 
 export interface SideProject {
-  readonly repo: string;
-  readonly name: string;
-  readonly summary: string;
-  readonly stack: readonly string[];
+ readonly repo: string;
+ readonly name: string;
+ readonly summary: string;
+ readonly stack: readonly string[];
 }
 
-/** Projetos menores: entram na lista, não ganham página própria. */
 export const sideProjects: readonly SideProject[] = [
   {
-    repo: "projeto-n8n",
-    name: "Pipeline n8n + Discord",
-    summary:
-      "Stack de automação em docker-compose: n8n orquestrando os fluxos, API própria em FastAPI e bot de Discord como interface. Schema versionado com migrations.",
-    stack: ["n8n", "FastAPI", "Discord.js", "Docker Compose"],
+    "repo": "saas-starter",
+    "name": "DropShip SaaS",
+    "summary": "Projeto de plataforma para automação de dropshipping, com API FastAPI, interface Next.js, integrações Shopify e Stripe e tarefas assíncronas com Celery. A estrutura inclui Docker, Nginx e migrations.",
+    "stack": [
+      "FastAPI",
+      "Next.js",
+      "PostgreSQL",
+      "Celery",
+      "Stripe"
+    ]
   },
   {
-    repo: "shimeji-ia-",
-    name: "Shimeji IA",
-    summary:
-      "Assistente de desktop que vive na tela como pet virtual e faz code review por visão computacional. Arquitetura reescrita para ser assíncrona e thread-safe.",
-    stack: ["Python", "Tkinter", "Groq", "Llama 3"],
-  },
+    "repo": "projeto-n8n",
+    "name": "Pipeline n8n + Discord",
+    "summary": "Projeto de integração entre workflows n8n, API FastAPI e bot de Discord, com serviços organizados em Docker Compose.",
+    "stack": [
+      "n8n",
+      "FastAPI",
+      "Discord.js",
+      "Docker Compose"
+    ]
+  }
 ] as const;
 
-export function repoUrl(repo: string): string {
-  return `https://github.com/${GITHUB_USER}/${repo}`;
-}
-
-export function findCaseStudy(slug: string): CaseStudy | undefined {
-  return caseStudies.find((project) => project.slug === slug);
-}
+export function repoUrl(repo: string): string { return `https://github.com/${GITHUB_USER}/${repo}`; }
+export function findCaseStudy(slug: string): CaseStudy | undefined { return caseStudies.find((project) => project.slug === slug); }

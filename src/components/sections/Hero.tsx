@@ -11,13 +11,13 @@ export default function Hero() {
           <p className="label hero-eyebrow"><span className="status-dot" aria-hidden="true" /> {profile.status}</p>
           <TypeLine prompt={`${profile.handle} $`} command="whoami" className="label" />
           <h1>Lucas<span>Gabriel<span className="hero-period">.</span></span></h1>
-          <p className="hero-role">Desenvolvimento.<br /><span>Automação. Segurança.</span></p>
-          <p className="hero-description">Transformo problemas em código, conecto sistemas e exploro o que existe por trás da interface. Foco em back-end, IA aplicada e segurança defensiva.</p>
+          <p className="hero-role">Back-end &amp; Full Stack.<br /><span>Automação e IA aplicada.</span></p>
+          <p className="hero-description">{profile.heroDescription}</p>
           <div className="hero-actions">
             <a className="action-primary" href="#projetos">Explorar projetos <span aria-hidden="true">↗</span></a>
             <a className="action-secondary" href="#contato">Vamos conversar <span aria-hidden="true">→</span></a>
           </div>
-          <div className="hero-skills label"><span>Python</span><span>Linux</span><span>FastAPI</span><span>Docker</span></div>
+          <div className="hero-skills label"><span>Python</span><span>Java</span><span>TypeScript</span><span>Docker</span></div>
         </div>
         <CyberCore />
       </div>

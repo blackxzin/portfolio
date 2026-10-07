@@ -370,3 +370,5 @@
 @media (max-width: 1100px) { .hero-layout { gap: 32px; } header nav .nav-link { padding-inline: 8px; font-size: 9px; } }
 @media (max-width: 767px) { :root { --shell: min(1180px,100% - 2.5rem); } .hero { padding-top: 90px; } .hero-layout { grid-template-columns: 1fr; gap: 44px; padding-bottom: 36px; } .hero h1 { font-size: clamp(4rem,17vw,6rem); } .hero-eyebrow { margin-bottom: 28px; } .cyber-panel { max-width: 520px; width: 100%; justify-self: center; } .core-scene { height: 290px; } .project-grid { grid-template-columns: 1fr; } .project-card-link { padding: 24px; } .hero-footer { font-size: 9px; } #contato li { flex-wrap: wrap; gap: 10px; } }
 @media (prefers-reduced-motion: reduce) { .core-cube { animation: none; transform: rotateX(-22deg) rotateY(35deg) rotateZ(-8deg); } .core-orbit { animation: none; transform: rotateX(65deg) rotateY(-20deg); } .orbit-two { transform: rotateX(-50deg) rotateY(30deg); } }
+
+@media print { .cv-page article, .cv-page li, .cv-page dl > div { break-inside: avoid; } .cv-page h2, .cv-page h3 { break-after: avoid; } }

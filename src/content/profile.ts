@@ -1,14 +1,16 @@
-// Texto e dados do portfólio. Edite aqui — nenhum componente tem conteúdo fixo.
+// Conteúdo profissional compartilhado pela home, currículo e metadados.
 export const GITHUB_USER = "blackxzin";
 
 export const profile = {
-  name: "Lucas Gabriel",
-  role: "Automação · Segurança defensiva · IA aplicada",
-  location: "Brasil · aberto a remoto",
-  status: "Disponível para estágio",
-  handle: `~/${GITHUB_USER}`,
-  intro:
-    "Estudo Análise e Desenvolvimento de Sistemas na UniCesumar e construo sistemas que rodam sozinhos: agentes com LLM local, pipelines de automação em n8n, APIs em FastAPI e ferramentas de auditoria defensiva — tudo containerizado, tudo com log para ler depois.",
+  "name": "Lucas Gabriel",
+  "fullName": "Lucas Gabriel Barros de Oliveira",
+  "role": "Engenheiro de Software · Back-end · IA aplicada",
+  "location": "Santa Bárbara d’Oeste, SP · aberto a remoto",
+  "status": "Aberto a oportunidades",
+  "handle": "~/blackxzin",
+  "intro": "Atuo como Engenheiro de Software na Ferreira Advocacia e curso Análise e Desenvolvimento de Sistemas na UniCesumar. Desenvolvo sistemas e projetos com foco em back-end, aplicações web e automação, integrando Python, Java, TypeScript e inteligência artificial.",
+  "heroDescription": "Desenvolvo APIs, aplicações web e automações com Python, Java e TypeScript. Meus projetos conectam inteligência artificial, bancos de dados e infraestrutura Linux para resolver problemas do dia a dia.",
+  "contactIntro": "Estou aberto a conversar sobre oportunidades em desenvolvimento back-end, full stack, DevOps e inteligência artificial. Posso contribuir com a criação de APIs, integração de serviços e automação de processos. Vamos falar sobre o que seu time está construindo?"
 } as const;
 
 export interface Section {
@@ -29,18 +31,30 @@ export const sections: readonly Section[] = [
 ] as const;
 
 export const about = {
-  paragraphs: [
-    "Comecei automatizando o que me irritava: relatório montado à mão toda segunda, dado copiado de um sistema para outro, tarefa que alguém repete sem pensar. Quase sempre existe um jeito de a máquina fazer — e é aí que eu gosto de estar.",
-    "Hoje isso virou algo maior. Rodo modelos localmente com Ollama, escrevo agentes que decidem qual ferramenta usar, ligo tudo em fluxos n8n e subo cada peça em container. Na parte de segurança meu foco é defensivo: reconhecimento, análise de logs e threat intel — sempre com aprovação humana antes de qualquer ação ativa.",
-    "Aprendo com a mão no teclado. Subo o serviço, quebro de propósito, leio o stack trace, entendo por que quebrou e arrumo. É mais lento que assistir aula, e é o único jeito que fixa.",
-    "Nunca trabalhei formalmente na área — é exatamente isso que procuro: entrar num time, pegar tarefa de verdade, entregar com revisão e aprender com quem já faz isso todo dia.",
+  "paragraphs": [
+    "Sou Lucas Gabriel Barros de Oliveira, estudante de Análise e Desenvolvimento de Sistemas na UniCesumar, com conclusão prevista para 2029. Desde setembro de 2026, atuo como Engenheiro de Software na Ferreira Advocacia, com desenvolvimento e criação de sistemas. Também mantenho projetos pessoais no GitHub, nos quais exploro APIs, interfaces web e integrações entre serviços.",
+    "Meu foco é back-end: modelagem de dados, autenticação, regras de negócio e processamento assíncrono. Uso Python com FastAPI, Java com Spring Boot e TypeScript com NestJS, além de React e Next.js para construir as interfaces que conectam essas funcionalidades ao usuário.",
+    "A inteligência artificial faz parte dos meus projetos e do meu processo de aprendizado. Integro APIs de diferentes provedores e modelos locais com Ollama, explorando busca semântica, análise de código e assistentes de desktop. Uso ferramentas como Copilot, Claude e ChatGPT como apoio ao desenvolvimento, com revisão e validação das soluções.",
+    "Tenho familiaridade com Windows e Linux, incluindo Arch Linux e Kali Linux. Meu interesse por segurança aparece nos estudos de autenticação, análise de ameaças e auditoria em ambientes autorizados. Quero ampliar essa experiência em projetos que valorizem colaboração, revisão de código e aprendizado contínuo."
   ],
-  facts: [
-    { label: "Formação", value: "ADS · UniCesumar (em curso)" },
-    { label: "Base", value: "Brasil — aberto a remoto" },
-    { label: "Procurando", value: "Estágio em dev, automação ou segurança" },
-    { label: "Foco atual", value: "Agentes de IA, n8n e segurança defensiva" },
-  ],
+  "facts": [
+    {
+      "label": "Formação",
+      "value": "ADS · UniCesumar · em curso"
+    },
+    {
+      "label": "Conclusão prevista",
+      "value": "2029"
+    },
+    {
+      "label": "Localização",
+      "value": "Santa Bárbara d’Oeste, SP"
+    },
+    {
+      "label": "Atuação atual",
+      "value": "Engenheiro de Software · Ferreira Advocacia"
+    }
+  ]
 } as const;
 
 export interface StackGroup {
@@ -51,20 +65,61 @@ export interface StackGroup {
 
 export const stack: readonly StackGroup[] = [
   {
-    label: "Domínio",
-    note: "Já escrevi projeto inteiro com isso e me viro sem ajuda.",
-    items: ["Python", "FastAPI", "Docker", "n8n", "Git", "JavaScript", "Linux", "Ollama / LLMs locais"],
+    "label": "Back-end e dados",
+    "note": "Tecnologias utilizadas nos projetos de APIs, persistência e processamento assíncrono.",
+    "items": [
+      "Python",
+      "FastAPI",
+      "Java",
+      "Spring Boot",
+      "Node.js",
+      "NestJS",
+      "PostgreSQL",
+      "Redis",
+      "APIs REST"
+    ]
   },
   {
-    label: "Uso com consulta",
-    note: "Entrego, mas ainda abro a documentação no meio do caminho.",
-    items: ["TypeScript", "Next.js", "NestJS", "PostgreSQL", "Redis", "Java", "APIs REST", "Kotlin"],
+    "label": "Front-end e aplicações web",
+    "note": "Interfaces conectadas às APIs, com componentes e tipagem.",
+    "items": [
+      "TypeScript",
+      "JavaScript",
+      "React",
+      "Next.js",
+      "HTML",
+      "CSS"
+    ]
   },
   {
-    label: "Estudando agora",
-    note: "É o que está em cima da mesa nos próximos meses.",
-    items: ["Testes automatizados", "CI/CD", "pgvector / RAG", "Observabilidade", "Hardening de Linux"],
+    "label": "Infraestrutura e automação",
+    "note": "Ambientes em containers, integração de serviços e tarefas em segundo plano.",
+    "items": [
+      "Docker",
+      "Docker Compose",
+      "Nginx",
+      "Git / GitHub",
+      "Linux (Arch / Kali)",
+      "Vercel",
+      "n8n",
+      "Celery",
+      "BullMQ"
+    ]
   },
+  {
+    "label": "Inteligência artificial",
+    "note": "Integrações com modelos locais e APIs, busca semântica e respostas em streaming.",
+    "items": [
+      "Ollama",
+      "OpenAI",
+      "Anthropic",
+      "Gemini",
+      "NVIDIA NIM",
+      "Groq",
+      "Embeddings",
+      "SSE"
+    ]
+  }
 ] as const;
 
 export interface WorkPrinciple {
@@ -74,29 +129,29 @@ export interface WorkPrinciple {
 
 export const work: readonly WorkPrinciple[] = [
   {
-    title: "Automatizo o que se repete",
-    body: "Tarefa que acontece toda semana do mesmo jeito vira script ou workflow. Ligar API, banco e notificação numa cadeia que roda sozinha é o tipo de problema que eu procuro.",
+    "title": "Entender antes de implementar",
+    "body": "Organizo o problema em requisitos e responsabilidades para definir a API, os dados e as integrações necessárias. Registro decisões de arquitetura para facilitar a evolução do projeto."
   },
   {
-    title: "Humano no circuito",
-    body: "Ferramenta que faz varredura, apaga ou dispara não executa sozinha. Ela pede aprovação, mostra o comando exato e registra quem confirmou. Automação sem freio é incidente esperando data.",
+    "title": "Separar responsabilidades",
+    "body": "Estruturo aplicações em camadas, com validação de entrada, serviços e acesso a dados. Essa organização facilita a leitura, os testes e a manutenção."
   },
   {
-    title: "Ambiente igual para todo mundo",
-    body: "Docker desde o primeiro commit. Prefiro gastar meia hora num Dockerfile a gastar dois dias descobrindo por que só funciona na minha máquina.",
+    "title": "Tratar segurança como requisito",
+    "body": "Considero autenticação, controle de acesso, validação e proteção de credenciais durante o desenvolvimento. Em projetos de auditoria, o uso deve respeitar o ambiente e o escopo autorizados."
   },
   {
-    title: "Leio o erro antes de chutar",
-    body: "Stack trace, log, menor caso reproduzível. É mais lento nos primeiros dez minutos e economiza o resto do dia.",
+    "title": "Automatizar tarefas repetitivas",
+    "body": "Uso filas, workers e workflows para integrar serviços e processar tarefas demoradas fora do ciclo de uma requisição, mantendo a aplicação responsiva."
   },
   {
-    title: "Segredo nunca vai para o repositório",
-    body: "Variável de ambiente, .env fora do git, chave rotacionada se vazar. Custa nada fazer certo desde o começo e custa caro consertar depois.",
+    "title": "Validar e documentar",
+    "body": "Investigo erros com logs, acrescento testes nos projetos e documento configuração e execução. Busco deixar o código compreensível para quem for utilizá-lo ou contribuir."
   },
   {
-    title: "Pergunto cedo",
-    body: "Prefiro travar vinte minutos e perguntar a travar dois dias e entregar errado. Estou no começo e trato isso como informação, não como vergonha.",
-  },
+    "title": "Aprender em colaboração",
+    "body": "Valorizo revisão de código, comunicação clara e feedback. Tenho iniciativa para pesquisar e experimentar, e procuro ajuda quando preciso esclarecer uma decisão técnica."
+  }
 ] as const;
 
 export interface Milestone {
@@ -107,20 +162,20 @@ export interface Milestone {
 
 export const milestones: readonly Milestone[] = [
   {
-    when: "Agora",
-    title: "Primeiro estágio",
-    body: "Entrar num time real, pegar o bug pequeno, entender o fluxo de um projeto que já existe e chegar na daily com algo pronto.",
+    "when": "Agora",
+    "title": "Desenvolvimento de sistemas",
+    "body": "Atuar na criação de sistemas na Ferreira Advocacia e continuar evoluindo os projetos pessoais que aprofundam minha prática de desenvolvimento."
   },
   {
-    when: "Próximo",
-    title: "Desenvolvedor júnior",
-    body: "Entregar feature de ponta a ponta com revisão, escrever teste para o que eu mando e ter opinião fundamentada em code review.",
+    "when": "Próximo passo",
+    "title": "Aprofundar engenharia de software",
+    "body": "Evoluir em testes, arquitetura, integração contínua e observabilidade, entendendo como manter aplicações além do ambiente de desenvolvimento."
   },
   {
-    when: "Longo prazo",
-    title: "Engenharia sênior",
-    body: "Desenhar solução, medir o que ela custa em produção e destravar quem chegar depois de mim.",
-  },
+    "when": "Direção",
+    "title": "Back-end, infraestrutura e IA",
+    "body": "Construir uma carreira conectando APIs, dados e automação, com atenção à segurança, à manutenção e às necessidades de quem usa o software."
+  }
 ] as const;
 
 export interface Contact {
@@ -134,4 +189,18 @@ export const contacts: readonly Contact[] = [
   { label: "WhatsApp", value: "(14) 99611-2048", href: "https://wa.me/5514996112048" },
   { label: "GitHub", value: `github.com/${GITHUB_USER}`, href: `https://github.com/${GITHUB_USER}` },
   { label: "LinkedIn", value: "/in/lucas-gabriel", href: "https://www.linkedin.com/in/lucas-gabriel-787b19334/" },
+] as const;
+
+export const experience = [
+  {
+    "company": "Ferreira Advocacia",
+    "role": "Engenheiro de Software",
+    "period": "Setembro de 2026 — atual",
+    "location": "Itaí, São Paulo · presencial",
+    "description": "Desenvolvimento e criação de sistemas para o escritório.",
+    "skills": [
+      "Sistemas de informação computacionais",
+      "Infraestrutura de tecnologia da informação"
+    ]
+  }
 ] as const;

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PrintButton from "@/components/PrintButton";
-import { about, contacts, milestones, profile, stack, work } from "@/content/profile";
+import { caseStudies, repoUrl } from "@/content/projects";
+import { about, contacts, experience, profile, stack } from "@/content/profile";
 
 export const metadata: Metadata = {
   title: "Currículo",
@@ -20,7 +21,7 @@ export default function CurriculoPage() {
         </div>
 
         <header style={{ borderBottom: "2px solid var(--line-strong)" }} className="pb-6">
-          <h1 style={{ fontSize: "var(--step-title)" }}>{profile.name}</h1>
+          <h1 style={{ fontSize: "var(--step-title)" }}>{profile.fullName}</h1>
           <p className="label mt-2" style={{ color: "var(--signal)" }}>
             {profile.role}
           </p>
@@ -30,7 +31,7 @@ export default function CurriculoPage() {
           <ul className="mt-4 m-0 flex flex-wrap list-none gap-x-6 gap-y-1 p-0">
             {contacts.map((contact) => (
               <li key={contact.label} className="text-sm">
-                <span className="label">{contact.label}:</span> {contact.value}
+                <span className="label">{contact.label}:</span>{" "}<a href={contact.href}>{contact.value}</a>
               </li>
             ))}
           </ul>
@@ -38,7 +39,7 @@ export default function CurriculoPage() {
 
         <section className="mt-10">
           <h2 className="label" style={{ color: "var(--signal)" }}>
-            Formação e situação
+            Formação e perfil
           </h2>
           <dl className="mt-4 m-0 grid gap-4 sm:grid-cols-2">
             {about.facts.map((fact) => (
@@ -67,33 +68,25 @@ export default function CurriculoPage() {
         </section>
 
         <section className="mt-10">
-          <h2 className="label" style={{ color: "var(--signal)" }}>
-            Como trabalho
-          </h2>
-          <ul className="mt-4 m-0 flex list-none flex-col gap-4 p-0">
-            {work.map((item) => (
-              <li key={item.title}>
-                <p className="m-0 font-medium">{item.title}</p>
-                <p className="m-0 mt-1 text-sm" style={{ color: "var(--paper-dim)" }}>
-                  {item.body}
-                </p>
-              </li>
-            ))}
-          </ul>
+          <h2 className="label" style={{ color: "var(--signal)" }}>Experiência profissional</h2>
+          {experience.map((item) => (
+            <article key={item.company} className="mt-4">
+              <h3 className="text-base font-medium">{item.role} · {item.company}</h3>
+              <p className="label mt-2">{item.period} · {item.location}</p>
+              <p className="mt-2 text-sm">{item.description}</p>
+            </article>
+          ))}
         </section>
 
         <section className="mt-10 mb-16">
-          <h2 className="label" style={{ color: "var(--signal)" }}>
-            Objetivos
-          </h2>
-          <ul className="mt-4 m-0 flex list-none flex-col gap-4 p-0">
-            {milestones.map((milestone) => (
-              <li key={milestone.title}>
-                <p className="label m-0">{milestone.when}</p>
-                <p className="m-0 mt-1 font-medium">{milestone.title}</p>
-                <p className="m-0 mt-1 text-sm" style={{ color: "var(--paper-dim)" }}>
-                  {milestone.body}
-                </p>
+          <h2 className="label" style={{ color: "var(--signal)" }}>Projetos pessoais selecionados</h2>
+          <ul className="mt-4 m-0 flex list-none flex-col gap-5 p-0">
+            {caseStudies.slice(0, 4).map((project) => (
+              <li key={project.slug}>
+                <h3 className="text-base font-medium">{project.name}</h3>
+                <p className="mt-2 text-sm" style={{ color: "var(--paper-dim)" }}>{project.summary}</p>
+                <p className="mt-1 text-xs">{project.stack.join(" · ")}</p>
+                <a className="mt-1 inline-block text-xs underline" href={repoUrl(project.repo)}>{repoUrl(project.repo)}</a>
               </li>
             ))}
           </ul>

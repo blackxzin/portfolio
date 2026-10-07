@@ -1,5 +1,5 @@
 import SectionHeading from "@/components/SectionHeading";
-import { about, sections } from "@/content/profile";
+import { about, experience, sections } from "@/content/profile";
 
 const meta = sections[0];
 
@@ -12,6 +12,24 @@ export default function About() {
         command={meta.command}
         aside={meta.title}
       />
+
+      <div className="mt-12" data-reveal>
+        <h3 className="label" style={{ color: "var(--signal)" }}>Experiência profissional</h3>
+        {experience.map((item) => (
+          <article key={item.company} className="mt-5 grid gap-5 border-y border-[color:var(--line)] py-7 md:grid-cols-2">
+            <div>
+              <p className="label">{item.period}</p>
+              <h3 className="mt-3 text-2xl">{item.role}</h3>
+              <p className="mt-2" style={{ color: "var(--signal)" }}>{item.company}</p>
+            </div>
+            <div style={{ color: "var(--paper-dim)" }}>
+              <p className="label">{item.location}</p>
+              <p className="mt-3">{item.description}</p>
+              <p className="mt-3 text-sm">{item.skills.join(" · ")}</p>
+            </div>
+          </article>
+        ))}
+      </div>
 
       <div className="mt-14 grid gap-12 md:grid-cols-12 md:gap-16">
         <div className="md:col-span-7 lg:col-span-6 lg:col-start-2">

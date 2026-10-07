@@ -130,7 +130,7 @@ export default async function ProjectPage({ params }: PageProps) {
 
       <section className="mt-20" data-reveal>
         <h2 className="label" style={{ color: "var(--signal)" }}>
-          Como resolvi
+          Implementação
         </h2>
         <div className="mt-5 max-w-[68ch]">
           {project.approach.map((paragraph) => (
@@ -201,7 +201,7 @@ export default async function ProjectPage({ params }: PageProps) {
 
       <section className="mt-20" data-reveal>
         <h2 className="label" style={{ color: "var(--signal)" }}>
-          O que eu tirei disso
+          Competências desenvolvidas
         </h2>
         <p
           className="mt-5 max-w-[62ch]"

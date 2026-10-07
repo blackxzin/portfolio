@@ -1,80 +1,43 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
 
-/**
- * Decide se vale a pena ligar o WebGL.
- * Enquanto não vale (mobile, GPU fraca, movimento reduzido, aba oculta),
- * a página fica com a grade em CSS — que custa zero.
- */
-
-const GridWave = dynamic(() => import("./GridWave"), { ssr: false });
-
-const MIN_VIEWPORT_WIDTH = 900;
-const MIN_CORES = 4;
-
-/** GPU de software (llvmpipe, SwiftShader) roda WebGL na CPU: pior que não ter. */
-function hasCapableGPU(): boolean {
-  try {
-    const canvas = document.createElement("canvas");
-    const gl = canvas.getContext("webgl2") ?? canvas.getContext("webgl");
-    if (!gl) return false;
-
-    const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
-    if (debugInfo) {
-      const renderer = String(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL));
-      if (/swiftshader|llvmpipe|software|basic render/i.test(renderer)) return false;
-    }
-
-    // libera o contexto de teste em vez de deixá-lo ocupando slot do navegador
-    gl.getExtension("WEBGL_lose_context")?.loseContext();
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function shouldEnable(): boolean {
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
-  if (window.matchMedia("(pointer: coarse)").matches) return false;
-  if (window.innerWidth < MIN_VIEWPORT_WIDTH) return false;
-  if ((navigator.hardwareConcurrency ?? 2) < MIN_CORES) return false;
-  return hasCapableGPU();
-}
+// Fixed coordinates avoid hydration differences and keep the network sparse.
+const clusters = [
+  [[90, 110], [158, 155], [225, 118], [180, 232]],
+  [[820, 90], [890, 146], [955, 106], [998, 202]],
+  [[1145, 325], [1230, 365], [1300, 290], [1330, 420]],
+  [[62, 520], [136, 570], [216, 536], [175, 664]],
+  [[690, 685], [760, 735], [850, 670], [895, 780]],
+  [[1100, 770], [1190, 715], [1260, 798], [1322, 720]],
+] as const;
 
 export default function Backdrop() {
-  const [enabled, setEnabled] = useState(false);
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    // só depois do primeiro paint: o texto nunca espera pelo 3D
-    const check = () => setEnabled(shouldEnable());
-
-    if (typeof window.requestIdleCallback === "function") {
-      const handle = window.requestIdleCallback(check, { timeout: 1200 });
-      return () => window.cancelIdleCallback(handle);
-    }
-
-    const handle = window.setTimeout(check, 400);
-    return () => window.clearTimeout(handle);
+    const update = () => setPaused(document.hidden);
+    document.addEventListener("visibilitychange", update);
+    update();
+    return () => document.removeEventListener("visibilitychange", update);
   }, []);
 
-  useEffect(() => {
-    if (!enabled) return;
-
-    // aba escondida não renderiza: economiza bateria e evita catch-up ao voltar
-    const onVisibility = () => setPaused(document.hidden);
-    document.addEventListener("visibilitychange", onVisibility);
-    onVisibility();
-
-    return () => document.removeEventListener("visibilitychange", onVisibility);
-  }, [enabled]);
-
   return (
-    <div className="backdrop-layer" aria-hidden="true">
-      <div className="backdrop-static" />
-      {enabled ? <GridWave paused={paused} /> : null}
+    <div className="backdrop-layer" aria-hidden="true" data-paused={paused}>
+      <div className="backdrop-glow" />
+      <svg className="particle-network" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" focusable="false">
+        {clusters.map((points, index) => (
+          <g className={`particle-cluster cluster-${index}`} key={index}>
+            <path d={`M${points[0].join(",")} L${points[1].join(",")} L${points[2].join(",")}`} className="particle-link" />
+            {points.map(([cx, cy], point) => (
+              <g key={point}>
+                <circle cx={cx} cy={cy} r="7" className="particle-aura" />
+                <circle cx={cx} cy={cy} r={point === 0 ? 1.8 : 1.2} className="particle-dot" />
+              </g>
+            ))}
+          </g>
+        ))}
+      </svg>
     </div>
   );
 }

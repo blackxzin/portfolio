@@ -8,7 +8,7 @@ export default function Footer() {
       <span className="label">
         © {new Date().getFullYear()} {profile.name}
       </span>
-      <span className="label">Next.js · TypeScript · WebGL</span>
+      <span className="label">Next.js · TypeScript · CSS 3D</span>
       <a href="#topo" className="label link-underline">
         Voltar ao topo ↑
       </a>

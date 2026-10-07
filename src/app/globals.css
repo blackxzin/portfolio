@@ -225,16 +225,33 @@
   contain: strict;
 }
 
-/* Fallback sem WebGL / mobile / movimento reduzido: grade em CSS puro */
-.backdrop-static {
+/* Sparse decorative network: no WebGL, downloads or per-frame JavaScript. */
+.backdrop-glow {
   position: absolute;
   inset: 0;
-  background-image:
-    linear-gradient(var(--line) var(--rule), transparent var(--rule)),
-    linear-gradient(90deg, var(--line) var(--rule), transparent var(--rule));
-  background-size: 88px 88px, 88px 88px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000 10%, transparent 78%);
-  opacity: 0.5;
+  background: radial-gradient(ellipse at 85% 22%, #ff334f0d, transparent 48%);
+}
+.particle-network { width: 100%; height: 100%; }
+.particle-link { fill: none; stroke: #ff334f; stroke-width: .7; opacity: .14; }
+.particle-dot { fill: #ff5b72; opacity: .58; }
+.particle-aura { fill: #ff334f; opacity: .045; }
+.particle-cluster { animation: particle-drift 30s ease-in-out infinite alternate; }
+.cluster-1 { animation-delay: -12s; animation-duration: 37s; }
+.cluster-2 { animation-delay: -8s; animation-duration: 33s; }
+.cluster-3 { animation-delay: -19s; animation-duration: 40s; }
+.cluster-4 { animation-delay: -5s; animation-duration: 35s; }
+.cluster-5 { animation-delay: -23s; animation-duration: 42s; }
+.backdrop-layer[data-paused="true"] .particle-cluster { animation-play-state: paused; }
+@keyframes particle-drift {
+  from { transform: translate3d(-10px, -12px, 0); }
+  to { transform: translate3d(14px, 18px, 0); }
+}
+@media (max-width: 767px) {
+  .particle-network { width: 180%; margin-left: -40%; }
+  .cluster-2, .cluster-4 { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .particle-cluster { animation: none; }
 }
 
 /* Linhas de varredura — leve o bastante para ler como textura, não como filtro */
@@ -333,11 +350,11 @@
 .panel-toolbar > span:first-child { display: flex; gap: 5px; }
 .panel-toolbar i { width: 6px; height: 6px; border-radius: 50%; background: #555; }
 .panel-toolbar i:first-child { background: var(--signal); }
-.core-scene { height: 330px; position: relative; overflow: hidden; background-image: linear-gradient(#ff334f09 1px,transparent 1px),linear-gradient(90deg,#ff334f09 1px,transparent 1px); background-size: 30px 30px; }
+.core-scene { height: 330px; position: relative; overflow: hidden; background: radial-gradient(ellipse at center, #ff334f0c, transparent 72%); }
 .scene-label, .scene-caption { position: absolute; font: 9px var(--font-mono),monospace; letter-spacing: .18em; color: var(--paper-faint); }
 .scene-label { top: 20px; left: 20px; }
 .scene-caption { bottom: 20px; left: 0; width: 100%; text-align: center; }
-.core-halo { position: absolute; inset: 10%; background: radial-gradient(ellipse,#ff334f20,transparent 65%); }
+.core-halo { position: absolute; inset: 10%; background: radial-gradient(ellipse,#ff334f30,transparent 68%); }
 .core-perspective { position: absolute; inset: 0; perspective: 800px; transform-style: preserve-3d; }
 .core-cube { position: absolute; top: 50%; left: 50%; width: 120px; height: 120px; margin: -60px; transform-style: preserve-3d; animation: core-spin 22s linear infinite; }
 .cube-face { position: absolute; inset: 0; border: 1px solid #ff5b72; background: linear-gradient(135deg,#551421b3,#170c12d9); box-shadow: inset 0 0 30px #ff334f18; display: grid; place-items: center; backface-visibility: hidden; }
@@ -366,7 +383,7 @@
 #stack li { border: 1px solid var(--line); padding: 8px 14px; background: #101014; }
 #contato { overflow-wrap: anywhere; }
 .scanlines { opacity: .13; }
-.backdrop-layer { opacity: .45; }
+.backdrop-layer { opacity: .8; }
 @media (max-width: 1100px) { .hero-layout { gap: 32px; } header nav .nav-link { padding-inline: 8px; font-size: 9px; } }
 @media (max-width: 767px) { :root { --shell: min(1180px,100% - 2.5rem); } .hero { padding-top: 90px; } .hero-layout { grid-template-columns: 1fr; gap: 44px; padding-bottom: 36px; } .hero h1 { font-size: clamp(4rem,17vw,6rem); } .hero-eyebrow { margin-bottom: 28px; } .cyber-panel { max-width: 520px; width: 100%; justify-self: center; } .core-scene { height: 290px; } .project-grid { grid-template-columns: 1fr; } .project-card-link { padding: 24px; } .hero-footer { font-size: 9px; } #contato li { flex-wrap: wrap; gap: 10px; } }
 @media (prefers-reduced-motion: reduce) { .core-cube { animation: none; transform: rotateX(-22deg) rotateY(35deg) rotateZ(-8deg); } .core-orbit { animation: none; transform: rotateX(65deg) rotateY(-20deg); } .orbit-two { transform: rotateX(-50deg) rotateY(30deg); } }
